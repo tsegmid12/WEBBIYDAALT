@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+.textGreen {
+  color: #00CBB8;
+}
+.textBlue {
+  color: #44B1D2;
+}
+.bgGreen {
+  background-color: #00CBB8 !important;
+}
+
+.bgBlue {
+  background-color: #44B1D2 !important;
+}

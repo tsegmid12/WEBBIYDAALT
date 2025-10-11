@@ -1,0 +1,124 @@
+import React, { useState } from 'react';
+import { Search, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+export default function GroupsPage() {
+  const [searchQuery, setSearchQuery] = useState('UI/UX Design');
+
+  const teams = [
+    {
+      id: 1,
+      name: 'Team 01',
+      course: 'Веб систем ба технологи',
+      members: 12,
+      color: 'bg-blue-500',
+    },
+    {
+      id: 2,
+      name: 'Team 02',
+      course: 'Веб систем ба технологи',
+      members: 12,
+      color: 'bg-blue-500',
+    },
+    {
+      id: 3,
+      name: 'Team 03',
+      course: 'Веб систем ба технологи',
+      members: 12,
+      color: 'bg-blue-400',
+    },
+    {
+      id: 4,
+      name: 'Team 04',
+      course: 'Веб систем ба технологи',
+      members: 12,
+      color: 'bg-blue-500',
+    },
+  ];
+
+  return (
+    <div className='min-h-[60vh] bg-gray-50'>
+      <div className='border-b'>
+        <div className='max-w-7xl mx-auto px-8 py-6'>
+          <div className='flex items-center gap-4'>
+            <div className='relative flex-1 max-w-2xl'>
+              <Search
+                className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400'
+                size={20}
+              />
+              <input
+                type='text'
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder='Search courses...'
+                className='w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent'
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className='max-w-7xl mx-auto px-8 py-8'>
+        <p className='text-gray-600 mb-6'>1 results find for "ui/ux design"</p>
+
+        <div className='grid grid-cols-4 gap-6'>
+          {teams.map(team => (
+            <div
+              key={team.id}
+              className={`rounded-xl p-6 shadow-sm hover:shadow-lg transition-all ${
+                team.isActive ? 'bg-green-400' : 'bg-white'
+              }`}>
+              <div className='flex items-start justify-between mb-4'>
+                <div
+                  className={`${team.color} text-white w-10 h-10 rounded-lg flex items-center justify-center font-bold`}>
+                  {team.id}
+                </div>
+                <button className='hover:scale-110 transition-transform'>
+                  <Heart
+                    className={
+                      team.isActive ? 'text-white fill-white' : 'text-cyan-500'
+                    }
+                    size={20}
+                  />
+                </button>
+              </div>
+
+              <h3
+                className={`font-bold mb-2 ${
+                  team.isActive ? 'text-white' : 'text-gray-900'
+                }`}>
+                {team.name}
+              </h3>
+              <p
+                className={`text-sm mb-4 ${
+                  team.isActive ? 'text-white text-opacity-90' : 'text-gray-600'
+                }`}>
+                {team.course}
+              </p>
+
+              <div className='flex items-center justify-between'>
+                <div className='flex -space-x-2'>
+                  {[1, 2, 3, 4, 5].map((_, idx) => (
+                    <div
+                      key={idx}
+                      className={`w-8 h-8 rounded-full border-2 ${
+                        team.isActive
+                          ? 'border-green-400 bg-gray-300'
+                          : 'border-white bg-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span
+                  className={`text-xs ${
+                    team.isActive ? 'text-white' : 'text-gray-500'
+                  }`}>
+                  {team.members} members
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
