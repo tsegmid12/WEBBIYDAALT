@@ -95,12 +95,10 @@ export default function TeachersContent() {
     // }
   };
 
-  // Toggle favorite - зөвхөн UI state өөрчлөх
   const handleToggleFavorite = (e, teacherId) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // Зөвхөн local state-д toggle хийнэ
     setFavorites(prev => {
       const newFavorites = new Set(prev);
       if (newFavorites.has(teacherId)) {
