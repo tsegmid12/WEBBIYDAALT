@@ -13,20 +13,17 @@ import { courseAPI, progressAPI } from '../../services/api';
 export default function LessonsTab() {
   const [searchParams] = useSearchParams();
   const courseId = searchParams.get('id');
-
   const [openWeek, setOpenWeek] = useState(null);
   const [weeks, setWeeks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [completedLessons, setCompletedLessons] = useState(new Set());
-
   useEffect(() => {
     if (courseId) {
       fetchCourseDetails();
       fetchLessonProgress();
     }
   }, [courseId]);
-
   const fetchCourseDetails = async () => {
     try {
       setLoading(true);
