@@ -9,7 +9,7 @@ export default function CustomCalendar() {
       endTime: '11:10',
       subject: 'Програмчлалын үндэс',
       color: 'bg-sky-400',
-      url: '/team4/course/courseDetail',
+      url: '/team4/course/101',
     },
     {
       day: 'Tue',
@@ -17,7 +17,7 @@ export default function CustomCalendar() {
       endTime: '9:30',
       subject: 'Програм хангамжийн бүтэц',
       color: 'bg-green-400',
-      url: '/team4/course/courseDetail',
+      url: '/team4/course/102',
     },
 
     {
@@ -26,7 +26,7 @@ export default function CustomCalendar() {
       endTime: '9:30',
       subject: 'Тоглоомын програмчлал',
       color: 'bg-purple-400',
-      url: '/team4/course/courseDetail',
+      url: '/team4/course/103',
     },
   ];
 

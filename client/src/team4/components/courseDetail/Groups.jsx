@@ -1,5 +1,6 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function TeamsTab() {
   const teams = [
@@ -65,7 +66,8 @@ export default function TeamsTab() {
   return (
     <div className='grid grid-cols-4 gap-6'>
       {teams.map(team => (
-        <div
+        <Link
+          to={`/team4/group/${team.id}`}
           key={team.id}
           className={`rounded-xl p-6 shadow-sm hover:shadow-lg transition-all ${
             team.isActive ? 'bg-green-400' : 'bg-white'
@@ -118,7 +120,7 @@ export default function TeamsTab() {
               {team.members} members
             </span>
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   );

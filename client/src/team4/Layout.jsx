@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Heart,
   Bell,
@@ -10,15 +10,48 @@ import {
   Linkedin,
   Youtube,
 } from 'lucide-react';
+import { studentAPI, authAPI } from './services/api';
 
 const Team4Layout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isActive = path => location.pathname === path;
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const toggleDropdown = () => setDropdownOpen(prev => !prev);
   const closeDropdown = () => setDropdownOpen(false);
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const data = await studentAPI.getProfile();
+      setUser(data.user || data);
+    } catch (err) {
+      console.error('Error fetching user profile:', err);
+      setUser({
+        name: 'team4',
+        avatar: '/team4/student/profile.png',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout();
+      navigate('/');
+    } catch (err) {
+      console.error('Error logging out:', err);
+      navigate('/');
+    }
+  };
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -32,7 +65,7 @@ const Team4Layout = () => {
             <Link
               to='/team4'
               className={`${
-                isActive('/team4') ? 'underline font-semibold' : ''
+                isActive('/team4') ? 'underline font-semibold ' : ''
               }`}>
               Нүүр
             </Link>
@@ -70,7 +103,7 @@ const Team4Layout = () => {
                   <Bell size={24} />
                 )}
               </Link>
-                {/* <Link to='/team4/message' className='flex items-center gap-2'>
+              {/* <Link to='/team4/message' className='flex items-center gap-2'>
                   {isActive('/team4/message') ? (
                     <LucideMessageSquareText fill='#00CBB8' size={24} />
                   ) : (
@@ -80,11 +113,16 @@ const Team4Layout = () => {
             </nav>
 
             <div className='relative flex  space-x-2'>
-              <img src='/team4/student/profile.png' width={36} alt='profile' />
+              <img
+                src={user?.avatar || '/team4/student/profile.png'}
+                width={36}
+                alt='profile'
+                className='rounded-full object-cover'
+              />
               <button
                 onClick={toggleDropdown}
                 className='text-sm font-medium flex items-center gap-1'>
-                team4
+                {user?.name || user?.full_name || 'Loading...'}
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   className='h-4 w-4'
@@ -120,9 +158,12 @@ const Team4Layout = () => {
               )}
             </div>
             <div className='bg-white rounded-full p-2'>
-              <Link to='/' className='flex items-center gap-2 underline'>
+              <button
+                onClick={handleLogout}
+                className='flex items-center gap-2 underline'
+                title='Гарах'>
                 <LogOut size={16} color='#44B1D2' />
-              </Link>
+              </button>
             </div>
           </div>
         </div>

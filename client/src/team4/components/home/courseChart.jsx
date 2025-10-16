@@ -33,14 +33,17 @@ export default function CourseChart() {
     '#FFCCBC',
   ];
 
-  // ✨ X тэнхлэгт индекс тоо нэмэх
+  
   const numberedData = data.map((item, index) => ({
     ...item,
-    index: index + 1, // 1-ээс эхэлнэ
+    index: index + 1, 
   }));
 
   return (
-    <div className='flex justify-center items-center bg-white p-8'>
+    <div className='flex flex-col justify-center items-center bg-white p-8'>
+      <h2 className='mb-8'>
+        Таны одоо үзэж буй хичээлүүд дээр цугласан оноонууд
+      </h2>
       <div className='w-full max-w-5xl flex justify-between items-center'>
         {/* График хэсэг */}
         <div className='w-2/3 h-80'>
