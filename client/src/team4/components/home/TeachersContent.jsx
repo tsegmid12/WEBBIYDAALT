@@ -7,6 +7,8 @@ export default function TeachersContent() {
   const [teachers, setTeachers] = useState([]);
   const [filteredTeachers, setFilteredTeachers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('all');
+  const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [favorites, setFavorites] = useState(new Set());
@@ -17,17 +19,43 @@ export default function TeachersContent() {
   }, []);
 
   useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredTeachers(teachers);
-    } else {
-      const filtered = teachers.filter(
+    let data = [...teachers];
+
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.toLowerCase();
+      data = data.filter(
         teacher =>
-          teacher.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          teacher.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          teacher.name?.toLowerCase().includes(q) ||
+          teacher.description?.toLowerCase().includes(q)
       );
-      setFilteredTeachers(filtered);
     }
-  }, [searchQuery, teachers]);
+
+    if (selectedSubject !== 'all') {
+      const subj = selectedSubject.toLowerCase().trim();
+      data = data.filter(t => {
+        const courseList = Array.isArray(t.courses)
+          ? t.courses
+          : typeof t.courses === 'string'
+          ? t.courses.split(',')
+          : [];
+
+        const subjects = [...courseList]
+          .filter(Boolean)
+          .map(s => String(s).toLowerCase().trim());
+
+        return subjects.some(s => s.includes(subj));
+      });
+    }
+
+    if (selectedDepartment !== 'all') {
+      const dep = selectedDepartment.toLowerCase().trim();
+      data = data.filter(t =>
+        (t.department || t.description || '').toLowerCase().trim().includes(dep)
+      );
+    }
+
+    setFilteredTeachers(data);
+  }, [searchQuery, teachers, selectedSubject, selectedDepartment]);
 
   const fetchTeachers = async () => {
     try {
@@ -39,7 +67,6 @@ export default function TeachersContent() {
     } catch (err) {
       console.error('Error fetching teachers:', err);
       setError(err.message);
-      // Fallback demo data
       const demoData = Array(8)
         .fill(null)
         .map((_, index) => ({
@@ -47,6 +74,8 @@ export default function TeachersContent() {
           name: 'Б.ганзориг',
           description: 'Мэдээлэл, Холбооны технологийн сургууль',
           image: '/team4/student/teacher.png',
+          courses: ['Веб систем ба технологи', 'Мобайл программчлал'],
+          department: 'Компьютерийн ухааны тэнхим',
         }));
       setTeachers(demoData);
       setFilteredTeachers(demoData);
@@ -125,14 +154,35 @@ export default function TeachersContent() {
         </div>
         <div>
           <label className='block text-sm text-gray-600 mb-2'>Хичээл:</label>
-          <select className='w-full px-4 py-2 border border-gray-300 rounded-lg'>
-            <option>Бүх хичээл</option>
+          <select
+            className='w-full px-4 py-2 border border-gray-300 rounded-lg'
+            value={selectedSubject}
+            onChange={e => setSelectedSubject(e.target.value)}>
+            <option value='all'>Бүх хичээл</option>
+            <option value='Мобайл программчлал'>Мобайл программчлал</option>
+            <option value='Веб систем ба технологи'>
+              Веб систем ба технологи
+            </option>
+            <option value='Дискрет бүтэц'>Дискрет бүтэц</option>
+            <option value='Үйлдлийн систем'>Үйлдлийн систем</option>
           </select>
         </div>
         <div>
-          <label className='block text-sm text-gray-600 mb-2'>Багш:</label>
-          <select className='w-full px-4 py-2 border border-gray-300 rounded-lg'>
-            <option>Бүх багш</option>
+          <label className='block text-sm text-gray-600 mb-2'>Тэнхим:</label>
+          <select
+            className='w-full px-4 py-2 border border-gray-300 rounded-lg'
+            value={selectedDepartment}
+            onChange={e => setSelectedDepartment(e.target.value)}>
+            <option value='all'>Бүх багш</option>
+            <option value='Мэдээллийн технологийн тэнхим'>
+              Мэдээллийн технологийн тэнхим
+            </option>
+            <option value='Компьютерийн ухааны тэнхим'>
+              Компьютерийн ухааны тэнхим
+            </option>
+            <option value='Кибер аюулгүй байдлын тэнхим'>
+              Кибер аюулгүй байдлын тэнхим
+            </option>
           </select>
         </div>
       </div>

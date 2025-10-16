@@ -23,27 +23,25 @@ export default function GroupDetail() {
           groupAPI.getGroupById(groupId),
           groupAPI.getGroupMembers(groupId),
         ]);
-
         if (!isMounted) return;
         setGroup(groupRes?.group || groupRes);
         setMembers(membersRes?.members || membersRes || []);
       } catch (e) {
-        // Fallback to mock data if API fails
         console.error('Failed to load group details, using mock data.', e);
         if (!isMounted) return;
-        const mockMembers = Array.from({ length: 12 }).map((_, idx) => ({
+        const mockMembers = Array.from({ length: 6 }).map((_, idx) => ({
           id: idx + 1,
-          name: `Member ${idx + 1}`,
-          role: idx === 0 ? 'Lead' : 'Student',
+          name: `Гишүүн ${idx + 1}`,
+          role: idx === 0 ? 'Ахлагч' : 'Гишүүн',
           avatar: '/team4/student/profile.png',
         }));
         setGroup({
           id: groupId,
           name: `Team ${groupId.toString().padStart(2, '0')}`,
-          course: 'Веб систем ба технологи',
+          course: 'Веб систем ба технологи /F.ITM301/',
           description:
-            'Энэ бол жишээ багийн дэлгэрэнгүй мэдээллийн хуудас. Жинхэнэ API-тай холбогдох үед автоматаар шинэчлэгдэнэ.',
-          teacher: { name: 'Т.Золбоо' },
+            'Багаараа хамтарч 8 лаборатори болон 2 бие даалт гүйцэтгэнэ.',
+          teacher: { name: 'Т.Золбоо /F.IT20/' },
           membersCount: mockMembers.length,
           color: 'bg-blue-500',
         });
@@ -59,11 +57,101 @@ export default function GroupDetail() {
     };
   }, [groupId]);
 
-  const schedule = useMemo(
+  const laboratory = useMemo(
     () => [
-      { id: 1, date: 'Даваа 10:00', topic: 'Дэвшилтэт React', duration: '90m' },
-      { id: 2, date: 'Лхагва 14:00', topic: 'API интеграц', duration: '90m' },
-      { id: 3, date: 'Баасан 09:00', topic: 'Тест ба чанар', duration: '60m' },
+      {
+        id: 1,
+        date: '2025.10.02 - 2025.10.09',
+        topic: 'Лабораторийн ажил 1',
+        allScore: 2,
+        scoreObtained: 2,
+        isOpened: true,
+      },
+      {
+        id: 2,
+        date: '2025.10.10 - 2025.10.17',
+        topic: 'Лабораторийн ажил 2',
+        allScore: 3,
+        scoreObtained: 2,
+        isOpened: true,
+      },
+      {
+        id: 3,
+        date: '2025.10.18 - 2025.10.25',
+        topic: 'Лабораторийн ажил 3',
+        allScore: 2,
+        scoreObtained: 0,
+        isOpened: true,
+      },
+      {
+        id: 4,
+        date: '2025.10.25 - 2025.11.02',
+        topic: 'Лабораторийн ажил 4',
+        allScore: 2,
+        scoreObtained: 0,
+        isOpened: false,
+      },
+      {
+        id: 5,
+        date: '2025.11.09 - 2025.11.16',
+        topic: 'Лабораторийн ажил 5',
+        allScore: 4,
+        scoreObtained: 0,
+        isOpened: false,
+      },
+      {
+        id: 6,
+        date: '2025.11.23 - 2025.11.30',
+        topic: 'Лабораторийн ажил 6',
+        allScore: 3,
+        scoreObtained: 0,
+        isOpened: false,
+      },
+      {
+        id: 7,
+        date: '2025.12.01 - 2025.12.08',
+        topic: 'Лабораторийн ажил 7',
+        allScore: 2,
+        scoreObtained: 0,
+        isOpened: false,
+      },
+      {
+        id: 8,
+        date: '2025.12.09 - 2025.12.16',
+        topic: 'Лабораторийн ажил 8',
+        allScore: 3,
+        scoreObtained: 0,
+        isOpened: false,
+      },
+    ],
+    []
+  );
+  const biydaalt = useMemo(
+    () => [
+      {
+        id: 1,
+        date: '2025.10.02 - 2025.10.09',
+        topic: 'Бие даалтын ажил 1',
+        allScore: 6,
+        scoreObtained: 6,
+        isOpened: true,
+      },
+      {
+        id: 2,
+        date: '2025.10.10 - 2025.10.17',
+        topic: 'Бие даалтын ажил 2',
+        allScore: 7,
+        scoreObtained: 0,
+        isOpened: false,
+      },
+      {
+        id: 3,
+        date: '2025.10.18 - 2025.10.25',
+        topic: 'Бие даалтын ажил 3',
+        allScore: 6,
+        scoreObtained: 0,
+        isOpened: false,
+      },
     ],
     []
   );
@@ -120,7 +208,7 @@ export default function GroupDetail() {
               </div>
             </div>
 
-            <div className='grid grid-cols-2 gap-4'>
+            <div className='grid grid-cols-3 gap-4'>
               <StatCard
                 icon={<Users size={18} />}
                 label='Гишүүд'
@@ -128,8 +216,13 @@ export default function GroupDetail() {
               />
               <StatCard
                 icon={<CalendarDays size={18} />}
-                label='Хичээл'
-                value={`${schedule.length}`}
+                label='Лаборатори'
+                value={`${laboratory.length}`}
+              />
+              <StatCard
+                icon={<CalendarDays size={18} />}
+                label='Бие даалт'
+                value={`${biydaalt.length}`}
               />
             </div>
           </div>
@@ -137,9 +230,10 @@ export default function GroupDetail() {
 
         <nav className='flex gap-2 mb-6 border-b'>
           {[
-            { id: 'overview', label: 'Тойм' },
+            { id: 'overview', label: 'Даалгавар' },
+            { id: 'laboratory', label: 'Лаборатори' },
+            { id: 'biydaalt', label: 'Бие даалт' },
             { id: 'members', label: 'Гишүүд' },
-            { id: 'schedule', label: 'Хуваарь' },
           ].map(t => (
             <button
               key={t.id}
@@ -157,7 +251,7 @@ export default function GroupDetail() {
         <section>
           {activeTab === 'overview' && (
             <div className='bg-white rounded-2xl shadow-sm border p-6'>
-              <h2 className='text-lg font-semibold mb-2'>Тайлбар</h2>
+              <h2 className='text-lg font-semibold mb-2'>Даалгавар</h2>
               <p className='text-gray-700 leading-relaxed'>
                 {group?.description || 'Одоогоор тайлбар байхгүй.'}
               </p>
@@ -191,19 +285,43 @@ export default function GroupDetail() {
             </div>
           )}
 
-          {activeTab === 'schedule' && (
+          {activeTab === 'laboratory' && (
             <div className='bg-white rounded-2xl shadow-sm border p-6'>
               <ul className='space-y-3'>
-                {schedule.map(item => (
+                {laboratory.map(item => (
                   <li
                     key={item.id}
-                    className='flex items-center justify-between border rounded-xl p-4'>
+                    className={`flex items-center justify-between border rounded-xl p-4 ${
+                      item.isOpened ? 'border-green-400' : 'border-gray-200'
+                    }`}>
                     <div>
                       <p className='font-medium text-gray-900'>{item.topic}</p>
                       <p className='text-sm text-gray-500'>{item.date}</p>
                     </div>
                     <span className='text-xs text-gray-500'>
-                      {item.duration}
+                      {item.scoreObtained}/{item.allScore} оноо
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {activeTab === 'biydaalt' && (
+            <div className='bg-white rounded-2xl shadow-sm border p-6'>
+              <ul className='space-y-3'>
+                {biydaalt.map(item => (
+                  <li
+                    key={item.id}
+                    className={`flex items-center justify-between border rounded-xl p-4 ${
+                      item.isOpened ? 'border-green-400' : 'border-gray-200'
+                    }`}>
+                    <div>
+                      <p className='font-medium text-gray-900'>{item.topic}</p>
+                      <p className='text-sm text-gray-500'>{item.date}</p>
+                    </div>
+                    <span className='text-xs text-gray-500'>
+                      {item.scoreObtained}/{item.allScore} оноо
                     </span>
                   </li>
                 ))}
