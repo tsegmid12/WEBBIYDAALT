@@ -5,6 +5,7 @@ export default function SettingsContent() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [nickName, setNickName] = useState('Uuganaa');
 
   return (
     <>
@@ -26,7 +27,7 @@ export default function SettingsContent() {
             <button
               onClick={() => setShowCurrentPassword(!showCurrentPassword)}
               className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400'>
-              <p className=''>Save</p>
+              <p className='textGreen '>Save</p>
             </button>
           </div>
           <div className='bg-white p-6 shadow-sm'>
@@ -48,8 +49,6 @@ export default function SettingsContent() {
             </p>
           </div>
         </div>
-
-        {/* Change Password */}
         <div>
           <div className='bg-white rounded-xl p-6 shadow-sm'>
             <h3 className='text-xl font-semibold text-gray-800 mb-6'>

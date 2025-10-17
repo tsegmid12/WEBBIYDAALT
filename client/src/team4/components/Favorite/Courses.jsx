@@ -60,7 +60,7 @@ export default function Courses() {
 
   return (
     <div className='min-h-[60vh] bg-gray-50'>
-      <div className='max-w-7xl mx-auto px-8 py-8'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-8 py-6 sm:py-8'>
         {/* {error && (
           <div className='bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6'>
             <p className='text-yellow-700'>
@@ -106,7 +106,7 @@ export default function Courses() {
               {filteredCourses.length} хичээл олдлоо
               {searchQuery && ` "${searchQuery}" хайлтаар`}
             </p>
-            <div className='grid grid-cols-4 gap-6'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
               {filteredCourses.map((course, index) => (
                 <Link
                   key={course.id || `course-${index}`}

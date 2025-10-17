@@ -26,7 +26,7 @@ export default function CourseDetail() {
       <Header />
       <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <div className='max-w-6xl mx-auto px-8 py-8'>
+      <div className='max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-8'>
         {activeTab === 'lessons' && <LessonsTab />}
         {activeTab === 'students' && <StudentsTab />}
         {activeTab === 'teams' && <TeamsTab />}

@@ -8,11 +8,11 @@ import SettingsContent from '../components/home/SettingsContent';
 const Home = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
   return (
-    <div className='min-h-screen '>
+    <div className='min-h-screen'>
       <Header />
       <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} />
 
-      <div className='max-w-9xl mx-auto px-8 py-8'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-8 py-6 sm:py-8'>
         {currentPage === 'dashboard' && <DashboardContent />}
         {currentPage === 'teachers' && <TeachersContent />}
         {currentPage === 'settings' && <SettingsContent />}

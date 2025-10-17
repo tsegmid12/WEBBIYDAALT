@@ -8,8 +8,8 @@ export default function Navigation({ currentPage, setCurrentPage }) {
   ];
 
   return (
-    <div className='bg-white max-w-7xl mx-auto px-8'>
-      <div className='flex justify-center gap-12 border-b border-gray-200 pt-6'>
+    <div className='bg-white max-w-7xl mx-auto px-4 sm:px-8'>
+      <div className='flex justify-center gap-6 sm:gap-12 border-b border-gray-200 pt-6 overflow-x-auto no-scrollbar'>
         {tabs.map(tab => (
           <button
             key={tab.id}

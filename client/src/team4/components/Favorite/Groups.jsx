@@ -97,7 +97,7 @@ export default function Groups() {
             <p className='text-gray-500 text-lg'>Баг олдсонгүй</p>
           </div>
         ) : (
-          <div className='grid grid-cols-4 gap-6'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
             {filteredTeams.map(team => (
               <Link
                 to={`/team4/group/${team.id}`}
@@ -137,12 +137,13 @@ export default function Groups() {
                     {[1, 2, 3, 4, 5].map((_, idx) => (
                       <div
                         key={idx}
-                        className={`w-8 h-8 rounded-full border-2 ${
-                          team.isActive
-                            ? 'border-green-400 bg-gray-300'
-                            : 'border-white bg-gray-300'
-                        }`}
-                      />
+                        className={`w-8 h-8 rounded-full border-2 bg-gray-300 ${'border-white'}`}>
+                        <img
+                          src='/team4/student/profile.png'
+                          alt='profile'
+                          className='w-full h-full rounded-full object-cover'
+                        />
+                      </div>
                     ))}
                   </div>
                   <span

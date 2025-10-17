@@ -3,7 +3,6 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Heart,
   Bell,
-  LucideMessageSquareText,
   LogOut,
   Facebook,
   Instagram,
@@ -18,6 +17,7 @@ const Team4Layout = () => {
   const isActive = path => location.pathname === path;
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,13 +31,10 @@ const Team4Layout = () => {
   const fetchUserProfile = async () => {
     try {
       const data = await studentAPI.getProfile();
-      setUser(data.user || data);
+      setUser(data?.user || data);
     } catch (err) {
       console.error('Error fetching user profile:', err);
-      setUser({
-        name: 'team4',
-        avatar: '/team4/student/profile.png',
-      });
+      setUser({ name: 'team4', avatar: '/team4/student/profile.png' });
     } finally {
       setLoading(false);
     }
@@ -54,18 +51,24 @@ const Team4Layout = () => {
   };
 
   return (
-    <div className='min-h-screen bg-gray-50'>
-      <header className='bgBlue text-white py-4 px-6'>
-        <div className='max-w-8xl mx-auto flex items-center justify-between relative'>
+    <div className='min-h-screen bg-gray-50 flex flex-col'>
+      <header className='bgBlue text-white py-4 px-4 sm:px-6'>
+        <div className='max-w-7xl mx-auto flex items-center justify-between relative'>
           <Link to='/team4' className='flex-shrink-0'>
-            <img src='/team4/student/logo.png' alt='vite' width={50} />
+            <img
+              src='/team4/student/logo.png'
+              alt='logo'
+              width={44}
+              className='sm:w-[50px]'
+            />
           </Link>
 
-          <nav className='absolute left-1/2 transform -translate-x-1/2 space-x-10'>
+          {/* Center nav - hidden on small screens */}
+          <nav className='hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-8'>
             <Link
               to='/team4'
               className={`${
-                isActive('/team4') ? 'underline font-semibold ' : ''
+                isActive('/team4') ? 'underline font-semibold' : ''
               }`}>
               Нүүр
             </Link>
@@ -85,44 +88,61 @@ const Team4Layout = () => {
             </Link>
           </nav>
 
-          <div className='flex space-x-6 items-center'>
-            <nav className='space-x-6 flex items-center'>
+          <div className='flex items-center gap-2 sm:gap-4'>
+            {/* Mobile menu */}
+            <button
+              aria-label='Open menu'
+              className='md:hidden rounded-md p-2 hover:bg-white/10'
+              onClick={() => setMobileOpen(o => !o)}>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                className='h-6 w-6'
+                fill='none'
+                viewBox='0 0 24 24'
+                stroke='currentColor'>
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M4 6h16M4 12h16m0 6H4'
+                />
+              </svg>
+            </button>
+
+            <nav className='hidden sm:flex items-center gap-4'>
               <Link to='/team4/favorite' className='flex items-center gap-2'>
                 {isActive('/team4/favorite') ? (
-                  <Heart fill='#00CBB8' size={24} />
+                  <Heart fill='#00CBB8' size={22} />
                 ) : (
-                  <Heart size={24} />
+                  <Heart size={22} />
                 )}
               </Link>
               <Link
                 to='/team4/notification'
                 className='flex items-center gap-2'>
                 {isActive('/team4/notification') ? (
-                  <Bell fill='#00CBB8' size={24} />
+                  <Bell fill='#00CBB8' size={22} />
                 ) : (
-                  <Bell size={24} />
+                  <Bell size={22} />
                 )}
               </Link>
-              {/* <Link to='/team4/message' className='flex items-center gap-2'>
-                  {isActive('/team4/message') ? (
-                    <LucideMessageSquareText fill='#00CBB8' size={24} />
-                  ) : (
-                    <LucideMessageSquareText size={24} />
-                  )}
-                </Link> */}
             </nav>
 
-            <div className='relative flex  space-x-2'>
+            {/* User */}
+            <div className='relative flex items-center gap-2'>
               <img
                 src={user?.avatar || '/team4/student/profile.png'}
-                width={36}
+                width={32}
+                height={32}
                 alt='profile'
                 className='rounded-full object-cover'
               />
               <button
                 onClick={toggleDropdown}
-                className='text-sm font-medium flex items-center gap-1'>
-                {user?.name || user?.full_name || 'Loading...'}
+                className='hidden sm:flex text-sm font-medium items-center gap-1'>
+                {user?.name ||
+                  user?.full_name ||
+                  (loading ? 'Loading...' : 'User')}
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   className='h-4 w-4'
@@ -137,9 +157,8 @@ const Team4Layout = () => {
                   />
                 </svg>
               </button>
-
               {dropdownOpen && (
-                <div className='absolute right-0 mt-2 w-32 bg-white text-black rounded-lg shadow-lg z-50'>
+                <div className='absolute right-0 top-full mt-2 w-36 bg-white text-black rounded-lg shadow-lg z-50'>
                   <ul className='py-2'>
                     {['team1', 'team2', 'team3', 'team4', 'team5', 'team6'].map(
                       team => (
@@ -157,6 +176,7 @@ const Team4Layout = () => {
                 </div>
               )}
             </div>
+
             <div className='bg-white rounded-full p-2'>
               <button
                 onClick={handleLogout}
@@ -167,19 +187,45 @@ const Team4Layout = () => {
             </div>
           </div>
         </div>
+
+        {/* Mobile dropdown menu */}
+        {mobileOpen && (
+          <div className='md:hidden max-w-7xl mx-auto px-2 mt-3'>
+            <div className='bg-white/10 rounded-lg backdrop-blur p-2 flex flex-col'>
+              <Link
+                to='/team4'
+                onClick={() => setMobileOpen(false)}
+                className='px-3 py-2 rounded hover:bg-white/20'>
+                Нүүр
+              </Link>
+              <Link
+                to='/team4/course'
+                onClick={() => setMobileOpen(false)}
+                className='px-3 py-2 rounded hover:bg-white/20'>
+                Хичээл
+              </Link>
+              <Link
+                to='/team4/group'
+                onClick={() => setMobileOpen(false)}
+                className='px-3 py-2 rounded hover:bg白/20'>
+                Бүлэг
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
-      <main className='max-w-7xl mx-auto p-6'>
+      <main className='max-w-7xl w-full mx-auto p-4 sm:p-6 flex-1'>
         <Outlet />
       </main>
 
       <footer className='bg-[#24243a] text-white py-10'>
-        <div className='max-w-7xl mx-auto text-center flex flex-col items-center space-y-6'>
-          <div className='flex space-x-6'>
+        <div className='max-w-7xl mx-auto text-center flex flex-col items-center space-y-6 px-4'>
+          <div className='flex flex-wrap items-center justify-center gap-6'>
             <div className='flex flex-col items-center space-y-1 border-r-2 pr-4'>
               <div className='flex items-center space-x-2'>
                 <div className='w-12 h-12 flex items-center justify-center'>
-                  <img src='/team4/student/logo.png' alt='' />
+                  <img src='/team4/student/logo.png' alt='logo' />
                 </div>
                 <div className='text-left leading-tight'>
                   <p className='textGreen text-sm font-semibold'>Let’s</p>
@@ -196,7 +242,7 @@ const Team4Layout = () => {
             </div>
           </div>
 
-          <div className='flex space-x-6'>
+          <div className='flex flex-wrap items-center justify-center gap-6'>
             <a
               href='https://www.facebook.com/d.uuganbaar.467495'
               className='text-gray-400 hover:text-white'>

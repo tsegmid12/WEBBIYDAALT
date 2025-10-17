@@ -133,7 +133,7 @@ export default function TeachersContent() {
         </div>
       )} */}
 
-      <div className='grid grid-cols-3 gap-4 mb-8'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8'>
         <div>
           <label className='block text-sm text-gray-600 mb-2'>Хайлт:</label>
           <div className='relative'>
@@ -191,7 +191,7 @@ export default function TeachersContent() {
           <p className='text-gray-500'>Багш олдсонгүй</p>
         </div>
       ) : (
-        <div className='grid grid-cols-4 gap-6'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
           {filteredTeachers.map((teacher, index) => (
             <div
               key={teacher.id || index}
@@ -204,7 +204,7 @@ export default function TeachersContent() {
                     '/team4/student/teacher.png'
                   }
                   alt={teacher.name}
-                  className='w-full h-64 object-cover'
+                  className='w-full h-56 sm:h-64 object-cover'
                 />
                 <button
                   onClick={e => handleToggleFavorite(e, teacher.id)}

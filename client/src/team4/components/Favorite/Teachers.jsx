@@ -76,7 +76,7 @@ export default function TeachersContent() {
           <p className='text-gray-500 text-lg'>Багш олдсонгүй</p>
         </div>
       ) : (
-        <div className='grid grid-cols-4 gap-6'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
           {filteredTeachers.map(teacher => (
             <div
               key={teacher.id}
@@ -85,7 +85,7 @@ export default function TeachersContent() {
                 <img
                   src={teacher.image}
                   alt={teacher.name}
-                  className='w-full h-64 object-cover'
+                  className='w-full h-56 sm:h-64 object-cover'
                 />
                 <button
                   onClick={e => handleRemoveFavorite(e, teacher.id)}

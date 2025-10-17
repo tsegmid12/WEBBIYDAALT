@@ -97,8 +97,8 @@ export default function CoursesPage() {
   return (
     <div className='min-h-screen bg-gray-50'>
       <div className='border-b'>
-        <div className='max-w-7xl mx-auto px-8 py-6'>
-          <div className='flex items-center gap-4'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-8 py-4 sm:py-6'>
+          <div className='flex items-center gap-3 sm:gap-4'>
             <div className='relative flex-1 max-w-2xl'>
               <Search
                 className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400'
@@ -115,7 +115,7 @@ export default function CoursesPage() {
           </div>
         </div>
       </div>
-      <div className='max-w-7xl mx-auto px-8 py-8'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-8 py-6 sm:py-8'>
         {/* {error && (
           <div className='bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6'>
             <p className='text-yellow-700'>
@@ -134,7 +134,7 @@ export default function CoursesPage() {
             <p className='text-gray-500 text-lg'>Хичээл олдсонгүй</p>
           </div>
         ) : (
-          <div className='grid grid-cols-4 gap-6'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
             {filteredCourses.map((course, index) => (
               <Link
                 key={course.id || `course-${index}`}
