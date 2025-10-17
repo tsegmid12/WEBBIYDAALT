@@ -118,7 +118,7 @@ export default function SettingsContent() {
                 </div>
               </div>
 
-              <button className='w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium mt-4'>
+              <button className='w-full bgGreen text-white py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium mt-4'>
                 Change Password
               </button>
             </div>

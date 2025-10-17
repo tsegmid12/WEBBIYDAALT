@@ -9,25 +9,28 @@ export default function Notification() {
       id: 1,
       title: 'Системийн шинэчлэлт хийгдэх тухай',
       description:
-        'Өнөөдөр 00:00-02:00 цагийн хооронд системийн шинэчлэлт хийгдэх тул платформ түр хугацаагаар ажиллахгүй. Та энэ хугацаанд сургалтдаа хамрагдах боломжгүй болохыг анхаарна уу.',
+        'Өнөөдөр 00:00-02:00 цагийн хооронд системийн шинэчлэлт хийгдэх тул платформ түр хугацаагаар ажиллахгүй. Та энэ хугацаанд хичээл үзэх боломжгүй болохыг анхаарна уу.',
       date: '2025.03.13',
       time: '17:20',
+      isRead: false,
     },
     {
       id: 2,
       title: 'Системийн шинэчлэлт хийгдэх тухай',
       description:
-        'Өнөөдөр 00:00-02:00 цагийн хооронд системийн шинэчлэлт хийгдэх тул платформ түр хугацаагаар ажиллахгүй. Та энэ хугацаанд сургалтдаа хамрагдах боломжгүй болохыг анхаарна уу.',
+        'Өнөөдөр 00:00-02:00 цагийн хооронд системийн шинэчлэлт хийгдэх тул платформ түр хугацаагаар ажиллахгүй. Та энэ хугацаанд хичээл үзэх боломжгүй болохыг анхаарна уу.',
       date: '2025.03.13',
       time: '17:20',
+      isRead: true,
     },
     {
       id: 3,
       title: 'Системийн шинэчлэлт хийгдэх тухай',
       description:
-        'Өнөөдөр 00:00-02:00 цагийн хооронд системийн шинэчлэлт хийгдэх тул платформ түр хугацаагаар ажиллахгүй. Та энэ хугацаанд сургалтдаа хамрагдах боломжгүй болохыг анхаарна уу.',
+        'Өнөөдөр 00:00-02:00 цагийн хооронд системийн шинэчлэлт хийгдэх тул платформ түр хугацаагаар ажиллахгүй. Та энэ хугацаанд хичээл үзэх боломжгүй болохыг анхаарна уу.',
       date: '2025.03.13',
       time: '17:20',
+      isRead: true,
     },
   ];
 
@@ -38,6 +41,7 @@ export default function Notification() {
       description: '"Програмчлалын үндэс" Хичээлийн "Team3" Бүлэгт нэмэгдлээ',
       date: '2025.03.13',
       time: '17:20',
+      isRead: false,
     },
     {
       id: 2,
@@ -45,6 +49,7 @@ export default function Notification() {
       description: '"Програмчлалын үндэс" Хичээлийн "Team3" Бүлэгт нэмэгдлээ',
       date: '2025.03.13',
       time: '17:20',
+      isRead: false,
     },
     {
       id: 3,
@@ -52,6 +57,7 @@ export default function Notification() {
       description: '"Програмчлалын үндэс" Хичээлийн "Team3" Бүлэгт нэмэгдлээ',
       date: '2025.03.13',
       time: '17:20',
+      isRead: true,
     },
     {
       id: 4,
@@ -59,6 +65,7 @@ export default function Notification() {
       description: '"Програмчлалын үндэс" Хичээлийн "Team3" Бүлэгт нэмэгдлээ',
       date: '2025.03.13',
       time: '17:20',
+      isRead: true,
     },
   ];
 
@@ -67,7 +74,7 @@ export default function Notification() {
 
   return (
     <div className='min-h-[90vh] bg-gray-50'>
-      <div className='max-w-5xl mx-auto px-8 '>
+      <div className='max-w-5xl mx-auto px-8'>
         <h1 className='text-3xl font-bold text-gray-900 mb-8'>Notifications</h1>
         <div className='flex gap-8 border-b mb-8'>
           <button
@@ -94,11 +101,19 @@ export default function Notification() {
           {notifications.map(notification => (
             <div
               key={notification.id}
-              className='bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 border-indigo-600'>
+              className={`bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 ${
+                notification.isRead ? 'border-gray-300' : 'border-indigo-600'
+              }`}>
               <div className='flex items-start justify-between mb-3'>
                 <div className='flex items-start gap-3 flex-1'>
-                  <div className='w-2 h-2 bg-indigo-600 rounded-full mt-2 flex-shrink-0'></div>
-                  <h3 className='font-semibold text-gray-900 text-lg'>
+                  <div
+                    className={`w-2 h-2 ${
+                      notification.isRead ? 'bg-white' : 'bg-indigo-600'
+                    } rounded-full mt-2 flex-shrink-0 border border-indigo-600`}></div>
+                  <h3
+                    className={`font-semibold text-lg ${
+                      notification.isRead ? 'text-gray-600' : 'text-gray-900'
+                    }`}>
                     {notification.title}
                   </h3>
                 </div>
@@ -109,7 +124,10 @@ export default function Notification() {
                   </span>
                 </div>
               </div>
-              <p className='text-gray-700 leading-relaxed ml-5'>
+              <p
+                className={`leading-relaxed ml-5 ${
+                  notification.isRead ? 'text-gray-500' : 'text-gray-700'
+                }`}>
                 {notification.description}
               </p>
             </div>

@@ -12,28 +12,32 @@ export default function GroupsPage() {
       name: 'Team 01',
       course: 'Веб систем ба технологи',
       members: 12,
-      color: 'bg-blue-500',
+      color: 'bg-white',
+      isActive: true,
     },
     {
       id: 2,
       name: 'Team 02',
       course: 'Веб систем ба технологи',
       members: 12,
-      color: 'bg-blue-500',
+      color: 'bg-white',
+      isActive: true,
     },
     {
       id: 3,
       name: 'Team 03',
       course: 'Веб систем ба технологи',
       members: 12,
-      color: 'bg-blue-400',
+      color: 'bg-white',
+      isActive: true,
     },
     {
       id: 4,
       name: 'Team 04',
       course: 'Веб систем ба технологи',
       members: 12,
-      color: 'bg-blue-500',
+      color: 'bg-white',
+      isActive: true,
     },
   ];
 
@@ -104,7 +108,9 @@ export default function GroupsPage() {
                 }`}>
                 <div className='flex items-start justify-between mb-4'>
                   <div
-                    className={`${team.color} text-white w-10 h-10 rounded-lg flex items-center justify-center font-bold`}>
+                    className={`${team.color} ${
+                      team.isActive ? 'textGreen' : 'text - white'
+                    }  w-10 h-10 rounded-lg flex items-center justify-center font-bold`}>
                     {team.id}
                   </div>
                   <button
@@ -113,7 +119,7 @@ export default function GroupsPage() {
                     <Heart
                       className='text-cyan-500'
                       size={20}
-                      fill={favorites.has(team.id) ? '#00CBB8' : 'none'}
+                      fill={favorites.has(team.id) ? '#00CBB8' : 'white'}
                     />
                   </button>
                 </div>
