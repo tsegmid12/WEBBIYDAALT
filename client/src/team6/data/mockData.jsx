@@ -180,6 +180,456 @@ export const questionBank = [
     default_point: 6,
     explanation: "NoSQL нь олон төрлийн өгөгдлийн формат (document, key-value, graph) дэмждэг.",
     created_by: "team3"
+  },
+
+  // JavaScript Questions
+  {
+    id: 11,
+    category_id: 6,
+    category_name: "JavaScript",
+    level_id: 1,
+    level_name: "Хялбар",
+    type: "single_choice",
+    question: "JavaScript-д var, let, const-ийн ялгаа юу вэ?",
+    options: [
+      { id: 'a', text: "var нь block scope, let/const нь function scope", is_correct: false },
+      { id: 'b', text: "var нь function scope, let/const нь block scope", is_correct: true },
+      { id: 'c', text: "Бүгд ижил scope-той", is_correct: false },
+      { id: 'd', text: "Зөвхөн const нь block scope", is_correct: false }
+    ],
+    default_point: 5,
+    explanation: "var нь function scope, let болон const нь block scope-той.",
+    created_by: "team6"
+  },
+  {
+    id: 12,
+    category_id: 6,
+    category_name: "JavaScript",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "multiple_choice",
+    question: "JavaScript-ийн array method-ууд аль нь вэ? (Олон хариулт сонгоно)",
+    options: [
+      { id: 'a', text: "map()", is_correct: true },
+      { id: 'b', text: "filter()", is_correct: true },
+      { id: 'c', text: "reduce()", is_correct: true },
+      { id: 'd', text: "forEach()", is_correct: true }
+    ],
+    default_point: 8,
+    explanation: "map, filter, reduce, forEach нь JavaScript-ийн үндсэн array method-ууд юм.",
+    created_by: "team6"
+  },
+  {
+    id: 13,
+    category_id: 6,
+    category_name: "JavaScript",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "number_answer",
+    question: "Дараах код ямар утга буцаана? Math.floor(Math.random() * 10) + 1",
+    correct_answer: "1-10 хооронд тоо",
+    number_range: { min: 1, max: 10 },
+    default_point: 5,
+    explanation: "Math.random() нь 0-1 хооронд тоо буцаана, Math.floor нь доош бөөрөнхийлнө.",
+    created_by: "team6"
+  },
+
+  // Python Questions
+  {
+    id: 14,
+    category_id: 7,
+    category_name: "Python",
+    level_id: 1,
+    level_name: "Хялбар",
+    type: "single_choice",
+    question: "Python-д list-ийг хэрхэн үүсгэх вэ?",
+    options: [
+      { id: 'a', text: "list = []", is_correct: true },
+      { id: 'b', text: "list = {}", is_correct: false },
+      { id: 'c', text: "list = ()", is_correct: false },
+      { id: 'd', text: "list = <>", is_correct: false }
+    ],
+    default_point: 5,
+    explanation: "Python-д list нь [] хаалт ашиглан үүсгэнэ.",
+    created_by: "team6"
+  },
+  {
+    id: 15,
+    category_id: 7,
+    category_name: "Python",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "text_answer",
+    question: "Python-д dictionary гэж юу вэ? Тайлбарлана уу.",
+    sample_answer: "Dictionary нь key-value хос агуулсан өгөгдлийн бүтэц юм. {} хаалт ашиглан үүсгэнэ.",
+    keywords: ["key", "value", "dictionary", "өгөгдөл"],
+    default_point: 8,
+    explanation: "Dictionary нь key-value хос агуулсан өгөгдлийн бүтэц.",
+    created_by: "team6"
+  },
+  {
+    id: 16,
+    category_id: 7,
+    category_name: "Python",
+    level_id: 3,
+    level_name: "Хүнд",
+    type: "fill_blank",
+    question: "Python-д list comprehension ашиглан 1-ээс 10 хүртэлх тоонуудын квадратыг олох: [_____ for x in range(1, 11)]",
+    blanks: [
+      { id: 1, correct_answers: ["x**2", "x*x", "x^2"] }
+    ],
+    default_point: 10,
+    explanation: "List comprehension: [x**2 for x in range(1, 11)]",
+    created_by: "team6"
+  },
+
+  // Java Questions
+  {
+    id: 17,
+    category_id: 8,
+    category_name: "Java",
+    level_id: 1,
+    level_name: "Хялбар",
+    type: "true_false",
+    question: "Java нь compiled хэл юм.",
+    correct_answer: true,
+    default_point: 5,
+    explanation: "Java нь compiled хэл бөгөөд bytecode руу compile хийдэг.",
+    created_by: "team6"
+  },
+  {
+    id: 18,
+    category_id: 8,
+    category_name: "Java",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "matching",
+    question: "Java-ийн access modifier-уудыг тайлбартай нь харгалзуулна уу:",
+    pairs: [
+      { id: 1, left: "public", right: "Бүх class-аас хандах боломжтой", correct_match: "A" },
+      { id: 2, left: "private", right: "Зөвхөн тухайн class дотор", correct_match: "B" },
+      { id: 3, left: "protected", right: "Subclass болон package дотор", correct_match: "C" },
+      { id: 4, left: "default", right: "Package дотор л", correct_match: "D" }
+    ],
+    default_point: 12,
+    explanation: "Java-д 4 төрлийн access modifier байна.",
+    created_by: "team6"
+  },
+
+  // Image Questions
+  {
+    id: 19,
+    category_id: 4,
+    category_name: "HTML/CSS",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "image_question",
+    question: "Зурган дээрх CSS код ямар layout үүсгэх вэ?",
+    image_url: "https://via.placeholder.com/500x300?text=CSS+Grid+Layout",
+    options: [
+      { id: 'a', text: "Flexbox layout", is_correct: false },
+      { id: 'b', text: "Grid layout", is_correct: true },
+      { id: 'c', text: "Table layout", is_correct: false },
+      { id: 'd', text: "Float layout", is_correct: false }
+    ],
+    default_point: 8,
+    explanation: "display: grid нь Grid layout үүсгэнэ.",
+    created_by: "team6"
+  },
+  {
+    id: 20,
+    category_id: 1,
+    category_name: "React",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "image_question",
+    question: "Зурган дээрх React component-ийн төрөл юу вэ?",
+    image_url: "https://via.placeholder.com/500x300?text=React+Component+Structure",
+    options: [
+      { id: 'a', text: "Functional Component", is_correct: true },
+      { id: 'b', text: "Class Component", is_correct: false },
+      { id: 'c', text: "HOC Component", is_correct: false },
+      { id: 'd', text: "Container Component", is_correct: false }
+    ],
+    default_point: 8,
+    explanation: "Functional component нь function ашиглан бичигддэг.",
+    created_by: "team6"
+  },
+
+  // TypeScript Questions
+  {
+    id: 21,
+    category_id: 10,
+    category_name: "TypeScript",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "single_choice",
+    question: "TypeScript-ийн гол давуу тал юу вэ?",
+    options: [
+      { id: 'a', text: "Static typing", is_correct: true },
+      { id: 'b', text: "Faster execution", is_correct: false },
+      { id: 'c', text: "Smaller file size", is_correct: false },
+      { id: 'd', text: "No compilation needed", is_correct: false }
+    ],
+    default_point: 6,
+    explanation: "TypeScript-ийн гол давуу тал нь static typing юм.",
+    created_by: "team6"
+  },
+  {
+    id: 22,
+    category_id: 10,
+    category_name: "TypeScript",
+    level_id: 3,
+    level_name: "Хүнд",
+    type: "text_answer",
+    question: "TypeScript-д interface болон type-ийн ялгаа юу вэ?",
+    sample_answer: "Interface нь extend болон merge хийх боломжтой, type нь union болон intersection type үүсгэх боломжтой.",
+    keywords: ["interface", "type", "extend", "merge"],
+    default_point: 10,
+    explanation: "Interface болон type нь өөр өөр зорилготой.",
+    created_by: "team6"
+  },
+
+  // Vue.js Questions
+  {
+    id: 23,
+    category_id: 11,
+    category_name: "Vue.js",
+    level_id: 1,
+    level_name: "Хялбар",
+    type: "single_choice",
+    question: "Vue.js-д data-г хэрхэн тодорхойлох вэ?",
+    options: [
+      { id: 'a', text: "data() function", is_correct: true },
+      { id: 'b', text: "data: object", is_correct: false },
+      { id: 'c', text: "const data = {}", is_correct: false },
+      { id: 'd', text: "export data", is_correct: false }
+    ],
+    default_point: 5,
+    explanation: "Vue.js-д data нь function байх ёстой.",
+    created_by: "team6"
+  },
+  {
+    id: 24,
+    category_id: 11,
+    category_name: "Vue.js",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "multiple_choice",
+    question: "Vue.js-ийн lifecycle hooks аль нь вэ? (Олон хариулт сонгоно)",
+    options: [
+      { id: 'a', text: "created", is_correct: true },
+      { id: 'b', text: "mounted", is_correct: true },
+      { id: 'c', text: "updated", is_correct: true },
+      { id: 'd', text: "destroyed", is_correct: true }
+    ],
+    default_point: 10,
+    explanation: "Vue.js-д олон lifecycle hooks байдаг.",
+    created_by: "team6"
+  },
+
+  // MongoDB Questions
+  {
+    id: 25,
+    category_id: 13,
+    category_name: "MongoDB",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "single_choice",
+    question: "MongoDB нь ямар төрлийн database вэ?",
+    options: [
+      { id: 'a', text: "Relational Database", is_correct: false },
+      { id: 'b', text: "NoSQL Document Database", is_correct: true },
+      { id: 'c', text: "Graph Database", is_correct: false },
+      { id: 'd', text: "Key-Value Database", is_correct: false }
+    ],
+    default_point: 6,
+    explanation: "MongoDB нь NoSQL document database юм.",
+    created_by: "team6"
+  },
+  {
+    id: 26,
+    category_id: 13,
+    category_name: "MongoDB",
+    level_id: 3,
+    level_name: "Хүнд",
+    type: "text_answer",
+    question: "MongoDB-д aggregation pipeline-ийн үүрэг юу вэ?",
+    sample_answer: "Aggregation pipeline нь өгөгдлийг дамжуулж боловсруулах, шүүх, бүлэглэх зэрэг үйлдлүүдийг хийхэд ашиглана.",
+    keywords: ["aggregation", "pipeline", "боловсруулах", "шүүх"],
+    default_point: 10,
+    explanation: "Aggregation pipeline нь өгөгдөл боловсруулахад ашиглана.",
+    created_by: "team6"
+  },
+
+  // Algorithms Questions
+  {
+    id: 27,
+    category_id: 17,
+    category_name: "Algorithms",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "number_answer",
+    question: "Binary search algorithm-ийн time complexity юу вэ? (Big O notation-д)",
+    correct_answer: "O(log n)",
+    number_range: null,
+    default_point: 8,
+    explanation: "Binary search нь O(log n) time complexity-тай.",
+    created_by: "team6"
+  },
+  {
+    id: 28,
+    category_id: 17,
+    category_name: "Algorithms",
+    level_id: 3,
+    level_name: "Хүнд",
+    type: "ordering",
+    question: "Quick sort algorithm-ийн дарааллыг зөв байрлуулна уу:",
+    items: [
+      { id: 1, text: "Choose pivot", correct_order: 1 },
+      { id: 2, text: "Partition array", correct_order: 2 },
+      { id: 3, text: "Recursively sort left", correct_order: 3 },
+      { id: 4, text: "Recursively sort right", correct_order: 4 }
+    ],
+    default_point: 12,
+    explanation: "Quick sort: pivot сонгох → partition → recursive sort.",
+    created_by: "team6"
+  },
+
+  // Data Structures Questions
+  {
+    id: 29,
+    category_id: 18,
+    category_name: "Data Structures",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "matching",
+    question: "Өгөгдлийн бүтцийг түүний онцлогтой нь харгалзуулна уу:",
+    pairs: [
+      { id: 1, left: "Stack", right: "LIFO (Last In First Out)", correct_match: "A" },
+      { id: 2, left: "Queue", right: "FIFO (First In First Out)", correct_match: "B" },
+      { id: 3, left: "Tree", right: "Hierarchical structure", correct_match: "C" },
+      { id: 4, left: "Graph", right: "Nodes and edges", correct_match: "D" }
+    ],
+    default_point: 12,
+    explanation: "Өөр өөр өгөгдлийн бүтэц өөр өөр онцлогтой.",
+    created_by: "team6"
+  },
+  {
+    id: 30,
+    category_id: 18,
+    category_name: "Data Structures",
+    level_id: 1,
+    level_name: "Хялбар",
+    type: "true_false",
+    question: "Array нь dynamic size-тай байж болно.",
+    correct_answer: true,
+    default_point: 5,
+    explanation: "Зарим хэл дээр array dynamic size-тай байж болно.",
+    created_by: "team6"
+  },
+
+  // Docker Questions
+  {
+    id: 31,
+    category_id: 15,
+    category_name: "Docker",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "single_choice",
+    question: "Docker container-ийг яаж ажиллуулах вэ?",
+    options: [
+      { id: 'a', text: "docker run", is_correct: true },
+      { id: 'b', text: "docker start", is_correct: false },
+      { id: 'c', text: "docker execute", is_correct: false },
+      { id: 'd', text: "docker launch", is_correct: false }
+    ],
+    default_point: 6,
+    explanation: "docker run командаар container ажиллуулна.",
+    created_by: "team6"
+  },
+  {
+    id: 32,
+    category_id: 15,
+    category_name: "Docker",
+    level_id: 3,
+    level_name: "Хүнд",
+    type: "text_answer",
+    question: "Dockerfile болон Docker image-ийн ялгаа юу вэ?",
+    sample_answer: "Dockerfile нь image үүсгэх зааварчилгаа агуулсан файл, image нь container үүсгэхэд ашиглах executable package.",
+    keywords: ["dockerfile", "image", "container", "зааварчилгаа"],
+    default_point: 10,
+    explanation: "Dockerfile нь image үүсгэх заавар, image нь executable package.",
+    created_by: "team6"
+  },
+
+  // Git Questions
+  {
+    id: 33,
+    category_id: 5,
+    category_name: "Git",
+    level_id: 1,
+    level_name: "Хялбар",
+    type: "single_choice",
+    question: "Git-д commit хийх командад юу вэ?",
+    options: [
+      { id: 'a', text: "git commit", is_correct: true },
+      { id: 'b', text: "git save", is_correct: false },
+      { id: 'c', text: "git push", is_correct: false },
+      { id: 'd', text: "git store", is_correct: false }
+    ],
+    default_point: 5,
+    explanation: "git commit командаар commit хийнэ.",
+    created_by: "team6"
+  },
+  {
+    id: 34,
+    category_id: 5,
+    category_name: "Git",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "fill_blank",
+    question: "Git-д branch үүсгэх: git _____ branch-name",
+    blanks: [
+      { id: 1, correct_answers: ["checkout", "checkout -b", "branch"] }
+    ],
+    default_point: 6,
+    explanation: "git checkout -b branch-name командаар branch үүсгэнэ.",
+    created_by: "team6"
+  },
+
+  // PostgreSQL Questions
+  {
+    id: 35,
+    category_id: 14,
+    category_name: "PostgreSQL",
+    level_id: 2,
+    level_name: "Дунд",
+    type: "single_choice",
+    question: "PostgreSQL нь ямар төрлийн database вэ?",
+    options: [
+      { id: 'a', text: "NoSQL Database", is_correct: false },
+      { id: 'b', text: "Relational Database", is_correct: true },
+      { id: 'c', text: "Document Database", is_correct: false },
+      { id: 'd', text: "Graph Database", is_correct: false }
+    ],
+    default_point: 6,
+    explanation: "PostgreSQL нь relational database юм.",
+    created_by: "team6"
+  },
+  {
+    id: 36,
+    category_id: 14,
+    category_name: "PostgreSQL",
+    level_id: 3,
+    level_name: "Хүнд",
+    type: "text_answer",
+    question: "SQL-д JOIN-ийн төрлүүд юу вэ?",
+    sample_answer: "INNER JOIN, LEFT JOIN, RIGHT JOIN, FULL OUTER JOIN зэрэг төрлүүд байна.",
+    keywords: ["join", "inner", "left", "right", "outer"],
+    default_point: 10,
+    explanation: "SQL-д олон төрлийн JOIN байдаг.",
+    created_by: "team6"
   }
 ];
 
@@ -237,30 +687,48 @@ export const exams = [
   {
     id: 1,
     course_id: 1,
-    name: "Дунд шалгалт",
-    description: "React болон Node.js сэдвийн дунд шалгалт. Нийт 5 асуулт байна.",
+    name: "Веб хөгжүүлэлтийн үндэс",
+    description: "React, JavaScript, HTML/CSS сэдвийн дунд шалгалт. Олон төрлийн асуултууд багтсан.",
     start_date: "2025-03-15T10:00",
     close_date: "2025-03-15T12:00",
-    duration: 60, // минут
-    max_attempt: 1, // Хэдэн удаа өгч болох
-    is_shuffled: true, // Асуултын дараалал холих
-    show_result_after: true, // Дууссаны дараа үр дүн харуулах
-    show_correct_answer: true, // Зөв хариулт харуулах
+    duration: 60,
+    max_attempt: 1,
+    is_shuffled: true,
+    show_result_after: true,
+    show_correct_answer: true,
+    total_score: 100,
     created_by: 4,
     created_at: "2025-02-01"
   },
   {
     id: 2,
     course_id: 1,
-    name: "Эцсийн шалгалт",
-    description: "Бүх сэдвийн эцсийн шалгалт. 90 минут.",
+    name: "Програмчлалын хэлүүд",
+    description: "Python, Java, JavaScript, TypeScript сэдвийн шалгалт. Зураг, текст, тоон хариулт зэрэг олон төрөл.",
+    start_date: "2025-04-10T09:00",
+    close_date: "2025-04-10T11:00",
+    duration: 75,
+    max_attempt: 1,
+    is_shuffled: true,
+    show_result_after: true,
+    show_correct_answer: true,
+    total_score: 100,
+    created_by: 4,
+    created_at: "2025-03-15"
+  },
+  {
+    id: 3,
+    course_id: 1,
+    name: "Өгөгдлийн сан ба Алгоритм",
+    description: "MongoDB, PostgreSQL, Algorithms, Data Structures сэдвийн эцсийн шалгалт. Харгалзуулах, дараалал зэрэг асуултууд.",
     start_date: "2025-05-20T09:00",
     close_date: "2025-05-20T12:00",
     duration: 90,
     max_attempt: 1,
     is_shuffled: true,
     show_result_after: true,
-    show_correct_answer: false, // Зөв хариулт харуулахгүй
+    show_correct_answer: false,
+    total_score: 100,
     created_by: 4,
     created_at: "2025-04-01"
   }
@@ -271,19 +739,38 @@ export const exams = [
 // ========================
 
 export const examQuestions = [
-  // Шалгалт 1-ийн асуултууд
-  { id: 1, exam_id: 1, question_id: 1, point: 5, order: 1 },
-  { id: 2, exam_id: 1, question_id: 2, point: 10, order: 2 },
-  { id: 3, exam_id: 1, question_id: 3, point: 5, order: 3 },
-  { id: 4, exam_id: 1, question_id: 4, point: 10, order: 4 },
-  { id: 5, exam_id: 1, question_id: 5, point: 8, order: 5 },
+  // Шалгалт 1: Веб хөгжүүлэлтийн үндэс (8 асуулт)
+  { id: 1, exam_id: 1, question_id: 1, point: 5, order: 1 }, // React single choice
+  { id: 2, exam_id: 1, question_id: 2, point: 10, order: 2 }, // React multiple choice
+  { id: 3, exam_id: 1, question_id: 3, point: 5, order: 3 }, // React true/false
+  { id: 4, exam_id: 1, question_id: 5, point: 8, order: 4 }, // React fill blank
+  { id: 5, exam_id: 1, question_id: 4, point: 10, order: 5 }, // Node.js text answer
+  { id: 6, exam_id: 1, question_id: 11, point: 6, order: 6 }, // JavaScript single choice
+  { id: 7, exam_id: 1, question_id: 12, point: 8, order: 7 }, // JavaScript multiple choice
+  { id: 8, exam_id: 1, question_id: 19, point: 8, order: 8 }, // HTML/CSS image question
   
-  // Шалгалт 2-ийн асуултууд
-  { id: 6, exam_id: 2, question_id: 1, point: 5, order: 1 },
-  { id: 7, exam_id: 2, question_id: 6, point: 12, order: 2 },
-  { id: 8, exam_id: 2, question_id: 7, point: 15, order: 3 },
-  { id: 9, exam_id: 2, question_id: 8, point: 10, order: 4 },
-  { id: 10, exam_id: 2, question_id: 9, point: 8, order: 5 }
+  // Шалгалт 2: Програмчлалын хэлүүд (10 асуулт)
+  { id: 9, exam_id: 2, question_id: 14, point: 5, order: 1 }, // Python single choice
+  { id: 10, exam_id: 2, question_id: 15, point: 10, order: 2 }, // Python text answer
+  { id: 11, exam_id: 2, question_id: 16, point: 10, order: 3 }, // Python fill blank
+  { id: 12, exam_id: 2, question_id: 17, point: 5, order: 4 }, // Java true/false
+  { id: 13, exam_id: 2, question_id: 18, point: 12, order: 5 }, // Java matching
+  { id: 14, exam_id: 2, question_id: 13, point: 6, order: 6 }, // JavaScript number answer
+  { id: 15, exam_id: 2, question_id: 21, point: 6, order: 7 }, // TypeScript single choice
+  { id: 16, exam_id: 2, question_id: 22, point: 10, order: 8 }, // TypeScript text answer
+  { id: 17, exam_id: 2, question_id: 23, point: 5, order: 9 }, // Vue.js single choice
+  { id: 18, exam_id: 2, question_id: 24, point: 10, order: 10 }, // Vue.js multiple choice
+  
+  // Шалгалт 3: Өгөгдлийн сан ба Алгоритм (9 асуулт)
+  { id: 19, exam_id: 3, question_id: 25, point: 6, order: 1 }, // MongoDB single choice
+  { id: 20, exam_id: 3, question_id: 26, point: 10, order: 2 }, // MongoDB text answer
+  { id: 21, exam_id: 3, question_id: 35, point: 6, order: 3 }, // PostgreSQL single choice
+  { id: 22, exam_id: 3, question_id: 36, point: 10, order: 4 }, // PostgreSQL text answer
+  { id: 23, exam_id: 3, question_id: 27, point: 8, order: 5 }, // Algorithms number answer
+  { id: 24, exam_id: 3, question_id: 28, point: 12, order: 6 }, // Algorithms ordering
+  { id: 25, exam_id: 3, question_id: 29, point: 12, order: 7 }, // Data Structures matching
+  { id: 26, exam_id: 3, question_id: 30, point: 5, order: 8 }, // Data Structures true/false
+  { id: 27, exam_id: 3, question_id: 6, point: 12, order: 9 } // Node.js matching
 ];
 
 // ========================
@@ -297,12 +784,12 @@ export const studentSubmissions = [
     student_id: 5,
     start_time: "2025-03-15T10:05:00",
     submit_time: "2025-03-15T10:45:00",
-    status: "submitted", // started, in_progress, submitted
+    status: "submitted",
     answers: [
       {
         question_id: 1,
         question_type: "single_choice",
-        answer: 'a', // Зөв хариулт
+        answer: 'a',
         is_correct: true,
         point_earned: 5,
         point_possible: 5
@@ -310,9 +797,9 @@ export const studentSubmissions = [
       {
         question_id: 2,
         question_type: "multiple_choice",
-        answer: ['a', 'b'], // useContext алдсан
+        answer: ['a', 'b'],
         is_correct: false,
-        point_earned: 6, // Хэсэгчлэн зөв
+        point_earned: 6,
         point_possible: 10
       },
       {
@@ -327,7 +814,7 @@ export const studentSubmissions = [
         question_id: 4,
         question_type: "text_answer",
         answer: "Package.json файл нь төслийн dependencies болон бусад тохиргоог хадгална",
-        is_correct: true, // Багш шалгана
+        is_correct: true,
         point_earned: 8,
         point_possible: 10,
         teacher_comment: "Сайн хариулт. Гэхдээ дэлгэрэнгүй бичих байсан."
@@ -339,14 +826,663 @@ export const studentSubmissions = [
         is_correct: true,
         point_earned: 8,
         point_possible: 8
+      },
+      {
+        question_id: 11,
+        question_type: "single_choice",
+        answer: 'b',
+        is_correct: true,
+        point_earned: 6,
+        point_possible: 6
+      },
+      {
+        question_id: 12,
+        question_type: "multiple_choice",
+        answer: ['a', 'b', 'c', 'd'],
+        is_correct: true,
+        point_earned: 8,
+        point_possible: 8
+      },
+      {
+        question_id: 19,
+        question_type: "image_question",
+        answer: 'b',
+        is_correct: true,
+        point_earned: 8,
+        point_possible: 8
       }
     ],
-    total_earned: 32,
-    total_possible: 38,
-    grade_point: 84.2, // (32/38) * 100
+    total_earned: 54,
+    total_possible: 60,
+    grade_point: 90.0,
     teacher_checked: true,
     checked_by: 4,
     checked_at: "2025-03-15T14:00:00"
+  },
+  {
+    id: 2,
+    exam_id: 1,
+    student_id: 6,
+    start_time: "2025-03-15T10:10:00",
+    submit_time: "2025-03-15T10:50:00",
+    status: "submitted",
+    answers: [
+      {
+        question_id: 1,
+        question_type: "single_choice",
+        answer: 'a',
+        is_correct: true,
+        point_earned: 5,
+        point_possible: 5
+      },
+      {
+        question_id: 2,
+        question_type: "multiple_choice",
+        answer: ['a', 'b', 'd'],
+        is_correct: true,
+        point_earned: 10,
+        point_possible: 10
+      },
+      {
+        question_id: 3,
+        question_type: "true_false",
+        answer: false,
+        is_correct: false,
+        point_earned: 0,
+        point_possible: 5
+      },
+      {
+        question_id: 4,
+        question_type: "text_answer",
+        answer: "Package.json файл нь төслийн мэдээлэл агуулна",
+        is_correct: true,
+        point_earned: 9,
+        point_possible: 10
+      },
+      {
+        question_id: 5,
+        question_type: "fill_blank",
+        answer: ["function"],
+        is_correct: false,
+        point_earned: 4,
+        point_possible: 8
+      },
+      {
+        question_id: 11,
+        question_type: "single_choice",
+        answer: 'a',
+        is_correct: false,
+        point_earned: 0,
+        point_possible: 6
+      },
+      {
+        question_id: 12,
+        question_type: "multiple_choice",
+        answer: ['a', 'b'],
+        is_correct: false,
+        point_earned: 4,
+        point_possible: 8
+      },
+      {
+        question_id: 19,
+        question_type: "image_question",
+        answer: 'a',
+        is_correct: false,
+        point_earned: 0,
+        point_possible: 8
+      }
+    ],
+    total_earned: 36,
+    total_possible: 60,
+    grade_point: 60.0,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T14:05:00"
+  },
+  {
+    id: 3,
+    exam_id: 1,
+    student_id: 7,
+    start_time: "2025-03-15T10:15:00",
+    submit_time: "2025-03-15T10:55:00",
+    status: "submitted",
+    answers: [
+      {
+        question_id: 1,
+        question_type: "single_choice",
+        answer: 'b',
+        is_correct: false,
+        point_earned: 0,
+        point_possible: 5
+      },
+      {
+        question_id: 2,
+        question_type: "multiple_choice",
+        answer: ['a'],
+        is_correct: false,
+        point_earned: 0,
+        point_possible: 10
+      },
+      {
+        question_id: 3,
+        question_type: "true_false",
+        answer: true,
+        is_correct: true,
+        point_earned: 5,
+        point_possible: 5
+      },
+      {
+        question_id: 4,
+        question_type: "text_answer",
+        answer: "Файл",
+        is_correct: false,
+        point_earned: 2,
+        point_possible: 10
+      },
+      {
+        question_id: 5,
+        question_type: "fill_blank",
+        answer: ["class"],
+        is_correct: false,
+        point_earned: 4,
+        point_possible: 8
+      },
+      {
+        question_id: 11,
+        question_type: "single_choice",
+        answer: 'b',
+        is_correct: true,
+        point_earned: 6,
+        point_possible: 6
+      },
+      {
+        question_id: 12,
+        question_type: "multiple_choice",
+        answer: ['a', 'b', 'c'],
+        is_correct: false,
+        point_earned: 6,
+        point_possible: 8
+      },
+      {
+        question_id: 19,
+        question_type: "image_question",
+        answer: 'c',
+        is_correct: false,
+        point_earned: 0,
+        point_possible: 8
+      }
+    ],
+    total_earned: 23,
+    total_possible: 60,
+    grade_point: 38.3,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T14:10:00"
+  },
+  {
+    id: 4,
+    exam_id: 1,
+    student_id: 8,
+    start_time: "2025-03-15T10:20:00",
+    submit_time: "2025-03-15T11:00:00",
+    status: "submitted",
+    answers: [
+      {
+        question_id: 1,
+        question_type: "single_choice",
+        answer: 'a',
+        is_correct: true,
+        point_earned: 5,
+        point_possible: 5
+      },
+      {
+        question_id: 2,
+        question_type: "multiple_choice",
+        answer: ['a', 'b', 'd'],
+        is_correct: true,
+        point_earned: 10,
+        point_possible: 10
+      },
+      {
+        question_id: 3,
+        question_type: "true_false",
+        answer: true,
+        is_correct: true,
+        point_earned: 5,
+        point_possible: 5
+      },
+      {
+        question_id: 4,
+        question_type: "text_answer",
+        answer: "Package.json файл нь төслийн мэдээлэл, dependencies, scripts зэрэг тохиргоог агуулна",
+        is_correct: true,
+        point_earned: 10,
+        point_possible: 10
+      },
+      {
+        question_id: 5,
+        question_type: "fill_blank",
+        answer: ["function", "class"],
+        is_correct: true,
+        point_earned: 8,
+        point_possible: 8
+      },
+      {
+        question_id: 11,
+        question_type: "single_choice",
+        answer: 'b',
+        is_correct: true,
+        point_earned: 6,
+        point_possible: 6
+      },
+      {
+        question_id: 12,
+        question_type: "multiple_choice",
+        answer: ['a', 'b', 'c', 'd'],
+        is_correct: true,
+        point_earned: 8,
+        point_possible: 8
+      },
+      {
+        question_id: 19,
+        question_type: "image_question",
+        answer: 'b',
+        is_correct: true,
+        point_earned: 8,
+        point_possible: 8
+      }
+    ],
+    total_earned: 60,
+    total_possible: 60,
+    grade_point: 100.0,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T14:15:00"
+  },
+  // Additional submissions for exam 1 (students 9-28 = 20 more students)
+  {
+    id: 5,
+    exam_id: 1,
+    student_id: 9,
+    start_time: "2025-03-15T10:25:00",
+    submit_time: "2025-03-15T11:05:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b', 'd'], is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: true, is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл нь төслийн мэдээлэл агуулна", is_correct: true, point_earned: 7, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function", "class"], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'b', is_correct: true, point_earned: 6, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b', 'c'], is_correct: false, point_earned: 6, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'b', is_correct: true, point_earned: 8, point_possible: 8 }
+    ],
+    total_earned: 55,
+    total_possible: 60,
+    grade_point: 91.7,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T14:20:00"
+  },
+  {
+    id: 6,
+    exam_id: 1,
+    student_id: 10,
+    start_time: "2025-03-15T10:30:00",
+    submit_time: "2025-03-15T11:10:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b'], is_correct: false, point_earned: 6, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: false, is_correct: false, point_earned: 0, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Файл", is_correct: false, point_earned: 3, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function"], is_correct: false, point_earned: 4, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'a', is_correct: false, point_earned: 0, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a'], is_correct: false, point_earned: 2, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'c', is_correct: false, point_earned: 0, point_possible: 8 }
+    ],
+    total_earned: 20,
+    total_possible: 60,
+    grade_point: 33.3,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T14:25:00"
+  },
+  {
+    id: 7,
+    exam_id: 1,
+    student_id: 11,
+    start_time: "2025-03-15T10:35:00",
+    submit_time: "2025-03-15T11:15:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b', 'd'], is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: true, is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл нь төслийн мэдээлэл, dependencies, scripts зэрэг тохиргоог агуулна", is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function", "class"], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'b', is_correct: true, point_earned: 6, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b', 'c', 'd'], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'b', is_correct: true, point_earned: 8, point_possible: 8 }
+    ],
+    total_earned: 60,
+    total_possible: 60,
+    grade_point: 100.0,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T14:30:00"
+  },
+  {
+    id: 8,
+    exam_id: 1,
+    student_id: 12,
+    start_time: "2025-03-15T10:40:00",
+    submit_time: "2025-03-15T11:20:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b', 'd'], is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: true, is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл нь төслийн мэдээлэл агуулна", is_correct: true, point_earned: 8, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function", "class"], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'b', is_correct: true, point_earned: 6, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b', 'c', 'd'], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'a', is_correct: false, point_earned: 0, point_possible: 8 }
+    ],
+    total_earned: 50,
+    total_possible: 60,
+    grade_point: 83.3,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T14:35:00"
+  },
+  {
+    id: 9,
+    exam_id: 1,
+    student_id: 13,
+    start_time: "2025-03-15T10:45:00",
+    submit_time: "2025-03-15T11:25:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'b', is_correct: false, point_earned: 0, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a'], is_correct: false, point_earned: 0, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: true, is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Файл", is_correct: false, point_earned: 2, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["class"], is_correct: false, point_earned: 4, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'b', is_correct: true, point_earned: 6, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b'], is_correct: false, point_earned: 4, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'c', is_correct: false, point_earned: 0, point_possible: 8 }
+    ],
+    total_earned: 21,
+    total_possible: 60,
+    grade_point: 35.0,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T14:40:00"
+  },
+  {
+    id: 10,
+    exam_id: 1,
+    student_id: 14,
+    start_time: "2025-03-15T10:50:00",
+    submit_time: "2025-03-15T11:30:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b', 'd'], is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: true, is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл нь төслийн мэдээлэл агуулна", is_correct: true, point_earned: 9, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function", "class"], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'b', is_correct: true, point_earned: 6, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b', 'c', 'd'], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'b', is_correct: true, point_earned: 8, point_possible: 8 }
+    ],
+    total_earned: 59,
+    total_possible: 60,
+    grade_point: 98.3,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T14:45:00"
+  },
+  {
+    id: 11,
+    exam_id: 1,
+    student_id: 15,
+    start_time: "2025-03-15T10:55:00",
+    submit_time: "2025-03-15T11:35:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b'], is_correct: false, point_earned: 6, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: false, is_correct: false, point_earned: 0, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл", is_correct: false, point_earned: 4, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function"], is_correct: false, point_earned: 4, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'a', is_correct: false, point_earned: 0, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b'], is_correct: false, point_earned: 4, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'a', is_correct: false, point_earned: 0, point_possible: 8 }
+    ],
+    total_earned: 23,
+    total_possible: 60,
+    grade_point: 38.3,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T14:50:00"
+  },
+  {
+    id: 12,
+    exam_id: 1,
+    student_id: 16,
+    start_time: "2025-03-15T11:00:00",
+    submit_time: "2025-03-15T11:40:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b', 'd'], is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: true, is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл нь төслийн мэдээлэл, dependencies, scripts зэрэг тохиргоог агуулна", is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function", "class"], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'b', is_correct: true, point_earned: 6, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b', 'c', 'd'], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'b', is_correct: true, point_earned: 8, point_possible: 8 }
+    ],
+    total_earned: 60,
+    total_possible: 60,
+    grade_point: 100.0,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T14:55:00"
+  },
+  {
+    id: 13,
+    exam_id: 1,
+    student_id: 17,
+    start_time: "2025-03-15T11:05:00",
+    submit_time: "2025-03-15T11:45:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b', 'd'], is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: true, is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл нь төслийн мэдээлэл агуулна", is_correct: true, point_earned: 8, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function", "class"], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'b', is_correct: true, point_earned: 6, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b', 'c'], is_correct: false, point_earned: 6, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'b', is_correct: true, point_earned: 8, point_possible: 8 }
+    ],
+    total_earned: 56,
+    total_possible: 60,
+    grade_point: 93.3,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T15:00:00"
+  },
+  {
+    id: 14,
+    exam_id: 1,
+    student_id: 18,
+    start_time: "2025-03-15T11:10:00",
+    submit_time: "2025-03-15T11:50:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'b', is_correct: false, point_earned: 0, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a'], is_correct: false, point_earned: 0, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: false, is_correct: false, point_earned: 0, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Файл", is_correct: false, point_earned: 1, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["class"], is_correct: false, point_earned: 4, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'a', is_correct: false, point_earned: 0, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a'], is_correct: false, point_earned: 2, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'c', is_correct: false, point_earned: 0, point_possible: 8 }
+    ],
+    total_earned: 7,
+    total_possible: 60,
+    grade_point: 11.7,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T15:05:00"
+  },
+  {
+    id: 15,
+    exam_id: 1,
+    student_id: 19,
+    start_time: "2025-03-15T11:15:00",
+    submit_time: "2025-03-15T11:55:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b', 'd'], is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: true, is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл нь төслийн мэдээлэл агуулна", is_correct: true, point_earned: 9, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function", "class"], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'b', is_correct: true, point_earned: 6, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b', 'c', 'd'], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'b', is_correct: true, point_earned: 8, point_possible: 8 }
+    ],
+    total_earned: 59,
+    total_possible: 60,
+    grade_point: 98.3,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T15:10:00"
+  },
+  {
+    id: 16,
+    exam_id: 1,
+    student_id: 20,
+    start_time: "2025-03-15T11:20:00",
+    submit_time: "2025-03-15T12:00:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b'], is_correct: false, point_earned: 6, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: true, is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл нь төслийн мэдээлэл агуулна", is_correct: true, point_earned: 7, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function"], is_correct: false, point_earned: 4, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'b', is_correct: true, point_earned: 6, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b', 'c'], is_correct: false, point_earned: 6, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'b', is_correct: true, point_earned: 8, point_possible: 8 }
+    ],
+    total_earned: 47,
+    total_possible: 60,
+    grade_point: 78.3,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T15:15:00"
+  },
+  {
+    id: 17,
+    exam_id: 1,
+    student_id: 21,
+    start_time: "2025-03-15T11:25:00",
+    submit_time: "2025-03-15T12:05:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b', 'd'], is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: true, is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл нь төслийн мэдээлэл, dependencies, scripts зэрэг тохиргоог агуулна", is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function", "class"], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'b', is_correct: true, point_earned: 6, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b', 'c', 'd'], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'b', is_correct: true, point_earned: 8, point_possible: 8 }
+    ],
+    total_earned: 60,
+    total_possible: 60,
+    grade_point: 100.0,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T15:20:00"
+  },
+  {
+    id: 18,
+    exam_id: 1,
+    student_id: 22,
+    start_time: "2025-03-15T11:30:00",
+    submit_time: "2025-03-15T12:10:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b'], is_correct: false, point_earned: 6, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: false, is_correct: false, point_earned: 0, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл", is_correct: false, point_earned: 5, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function"], is_correct: false, point_earned: 4, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'a', is_correct: false, point_earned: 0, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b'], is_correct: false, point_earned: 4, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'a', is_correct: false, point_earned: 0, point_possible: 8 }
+    ],
+    total_earned: 24,
+    total_possible: 60,
+    grade_point: 40.0,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T15:25:00"
+  },
+  {
+    id: 19,
+    exam_id: 1,
+    student_id: 23,
+    start_time: "2025-03-15T11:35:00",
+    submit_time: "2025-03-15T12:15:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b', 'd'], is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: true, is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл нь төслийн мэдээлэл агуулна", is_correct: true, point_earned: 8, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function", "class"], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'b', is_correct: true, point_earned: 6, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b', 'c', 'd'], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'b', is_correct: true, point_earned: 8, point_possible: 8 }
+    ],
+    total_earned: 58,
+    total_possible: 60,
+    grade_point: 96.7,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T15:30:00"
+  },
+  {
+    id: 20,
+    exam_id: 1,
+    student_id: 24,
+    start_time: "2025-03-15T11:40:00",
+    submit_time: "2025-03-15T12:20:00",
+    status: "submitted",
+    answers: [
+      { question_id: 1, question_type: "single_choice", answer: 'a', is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 2, question_type: "multiple_choice", answer: ['a', 'b', 'd'], is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 3, question_type: "true_false", answer: true, is_correct: true, point_earned: 5, point_possible: 5 },
+      { question_id: 4, question_type: "text_answer", answer: "Package.json файл нь төслийн мэдээлэл, dependencies, scripts зэрэг тохиргоог агуулна", is_correct: true, point_earned: 10, point_possible: 10 },
+      { question_id: 5, question_type: "fill_blank", answer: ["function", "class"], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 11, question_type: "single_choice", answer: 'b', is_correct: true, point_earned: 6, point_possible: 6 },
+      { question_id: 12, question_type: "multiple_choice", answer: ['a', 'b', 'c', 'd'], is_correct: true, point_earned: 8, point_possible: 8 },
+      { question_id: 19, question_type: "image_question", answer: 'b', is_correct: true, point_earned: 8, point_possible: 8 }
+    ],
+    total_earned: 60,
+    total_possible: 60,
+    grade_point: 100.0,
+    teacher_checked: true,
+    checked_by: 4,
+    checked_at: "2025-03-15T15:35:00"
   }
 ];
 
@@ -359,7 +1495,20 @@ export const categories = [
   { id: 2, name: "Node.js", color: "#339933" },
   { id: 3, name: "Database", color: "#4479A1" },
   { id: 4, name: "HTML/CSS", color: "#E34F26" },
-  { id: 5, name: "Git", color: "#F05032" }
+  { id: 5, name: "Git", color: "#F05032" },
+  { id: 6, name: "JavaScript", color: "#F7DF1E" },
+  { id: 7, name: "Python", color: "#3776AB" },
+  { id: 8, name: "Java", color: "#ED8B00" },
+  { id: 9, name: "C++", color: "#00599C" },
+  { id: 10, name: "TypeScript", color: "#3178C6" },
+  { id: 11, name: "Vue.js", color: "#4FC08D" },
+  { id: 12, name: "Angular", color: "#DD0031" },
+  { id: 13, name: "MongoDB", color: "#47A248" },
+  { id: 14, name: "PostgreSQL", color: "#336791" },
+  { id: 15, name: "Docker", color: "#2496ED" },
+  { id: 16, name: "AWS", color: "#FF9900" },
+  { id: 17, name: "Algorithms", color: "#FF6B6B" },
+  { id: 18, name: "Data Structures", color: "#4ECDC4" }
 ];
 
 export const levels = [
@@ -375,15 +1524,42 @@ export const questionTypes = [
   { value: "text_answer", label: "Нээлттэй хариулт", icon: "📝" },
   { value: "fill_blank", label: "Хоосон нөхөх", icon: "___" },
   { value: "matching", label: "Харгалзуулах", icon: "↔️" },
-  { value: "ordering", label: "Дараалал", icon: "🔢" }
+  { value: "ordering", label: "Дараалал", icon: "🔢" },
+  { value: "number_answer", label: "Тоон хариулт", icon: "🔢" },
+  { value: "image_question", label: "Зураг бүхий", icon: "🖼️" }
 ];
 
 export const users = [
   { id: 1, email: "admin@must.edu.mn", password: "123", first_name: "Админ", role: "admin" },
   { id: 2, email: "user@must.edu.mn", password: "123", first_name: "Хэрэглэгч", role: "user" },
   { id: 3, email: "schooladmin@must.edu.mn", password: "123", first_name: "Сургуулийн Админ", role: "school_admin" },
-  { id: 4, email: "schoolteacher@must.edu.mn", password: "123", first_name: "Багш", role: "teacher" },
-  { id: 5, email: "schoolstudent@must.edu.mn", password: "123", first_name: "Оюутан", role: "student" }
+  { id: 4, email: "schoolteacher@must.edu.mn", password: "123teacher", first_name: "Багш", role: "teacher" },
+  { id: 5, email: "schoolstudent@must.edu.mn", password: "123", first_name: "Оюутан", role: "student" },
+  { id: 6, email: "student1@must.edu.mn", password: "123", first_name: "Оюутан 1", role: "student" },
+  { id: 7, email: "student2@must.edu.mn", password: "123", first_name: "Оюутан 2", role: "student" },
+  { id: 8, email: "student3@must.edu.mn", password: "123", first_name: "Оюутан 3", role: "student" },
+  { id: 9, email: "student4@must.edu.mn", password: "123", first_name: "Оюутан 4", role: "student" },
+  { id: 10, email: "student5@must.edu.mn", password: "123", first_name: "Оюутан 5", role: "student" },
+  { id: 11, email: "student6@must.edu.mn", password: "123", first_name: "Оюутан 6", role: "student" },
+  { id: 12, email: "student7@must.edu.mn", password: "123", first_name: "Оюутан 7", role: "student" },
+  { id: 13, email: "student8@must.edu.mn", password: "123", first_name: "Оюутан 8", role: "student" },
+  { id: 14, email: "student9@must.edu.mn", password: "123", first_name: "Оюутан 9", role: "student" },
+  { id: 15, email: "student10@must.edu.mn", password: "123", first_name: "Оюутан 10", role: "student" },
+  { id: 16, email: "student11@must.edu.mn", password: "123", first_name: "Оюутан 11", role: "student" },
+  { id: 17, email: "student12@must.edu.mn", password: "123", first_name: "Оюутан 12", role: "student" },
+  { id: 18, email: "student13@must.edu.mn", password: "123", first_name: "Оюутан 13", role: "student" },
+  { id: 19, email: "student14@must.edu.mn", password: "123", first_name: "Оюутан 14", role: "student" },
+  { id: 20, email: "student15@must.edu.mn", password: "123", first_name: "Оюутан 15", role: "student" },
+  { id: 21, email: "student16@must.edu.mn", password: "123", first_name: "Оюутан 16", role: "student" },
+  { id: 22, email: "student17@must.edu.mn", password: "123", first_name: "Оюутан 17", role: "student" },
+  { id: 23, email: "student18@must.edu.mn", password: "123", first_name: "Оюутан 18", role: "student" },
+  { id: 24, email: "student19@must.edu.mn", password: "123", first_name: "Оюутан 19", role: "student" },
+  { id: 25, email: "student20@must.edu.mn", password: "123", first_name: "Оюутан 20", role: "student" },
+  { id: 26, email: "student21@must.edu.mn", password: "123", first_name: "Оюутан 21", role: "student" },
+  { id: 27, email: "student22@must.edu.mn", password: "123", first_name: "Оюутан 22", role: "student" },
+  { id: 28, email: "student23@must.edu.mn", password: "123", first_name: "Оюутан 23", role: "student" },
+  { id: 29, email: "student24@must.edu.mn", password: "123", first_name: "Оюутан 24", role: "student" },
+  { id: 30, email: "student25@must.edu.mn", password: "123", first_name: "Оюутан 25", role: "student" }
 ];
 
 export const courses = [
@@ -393,6 +1569,27 @@ export const courses = [
     teacher_id: 4,
     start_date: "2025-01-15",
     end_date: "2025-05-30"
+  },
+  {
+    id: 2,
+    name: "Програмчлалын хэлүүд",
+    teacher_id: 4,
+    start_date: "2025-01-20",
+    end_date: "2025-06-15"
+  },
+  {
+    id: 3,
+    name: "Өгөгдлийн сан",
+    teacher_id: 4,
+    start_date: "2025-02-01",
+    end_date: "2025-06-30"
+  },
+  {
+    id: 4,
+    name: "Алгоритм ба Өгөгдлийн бүтэц",
+    teacher_id: 4,
+    start_date: "2025-02-10",
+    end_date: "2025-07-15"
   }
 ];
 
@@ -481,6 +1678,39 @@ export const checkOrdering = (question, studentOrder) => {
 export const calculateTotalScore = (examId) => {
   const questions = examQuestions.filter(eq => eq.exam_id === examId);
   return questions.reduce((sum, q) => sum + q.point, 0);
+};
+
+// Шалгалтын оноо тооцоолох - Highest score gets full score, others calculated proportionally
+export const calculateExamScores = (examId, totalScore = 100) => {
+  const submissions = studentSubmissions.filter(s => s.exam_id === examId);
+  if (submissions.length === 0) return [];
+
+  // Find highest raw score
+  const highestRawScore = Math.max(
+    ...submissions.map(s => s.total_earned)
+  );
+
+  // Calculate adjusted scores
+  return submissions.map(submission => {
+    if (highestRawScore === 0) {
+      return {
+        ...submission,
+        adjusted_score: 0,
+        adjusted_grade_point: 0
+      };
+    }
+
+    // Calculate proportional score
+    const ratio = submission.total_earned / highestRawScore;
+    const adjusted_score = Math.round(ratio * totalScore * 100) / 100;
+    const adjusted_grade_point = (adjusted_score / totalScore) * 100;
+
+    return {
+      ...submission,
+      adjusted_score,
+      adjusted_grade_point: Math.round(adjusted_grade_point * 100) / 100
+    };
+  });
 };
 
 // Шалгалтын статистик
