@@ -683,20 +683,31 @@ export const examConfigs = [
 // 3. ШАЛГАЛТ
 // ========================
 
+// Helper function to get dates relative to today
+const getDateString = (daysOffset, hour = 10) => {
+  const date = new Date();
+  date.setDate(date.getDate() + daysOffset);
+  date.setHours(hour, 0, 0, 0);
+  // Return full ISO string to ensure proper timezone handling
+  return date.toISOString();
+};
+
 export const exams = [
   {
     id: 1,
     course_id: 1,
     name: "Веб хөгжүүлэлтийн үндэс",
     description: "React, JavaScript, HTML/CSS сэдвийн дунд шалгалт. Олон төрлийн асуултууд багтсан.",
-    start_date: "2025-03-15T10:00",
-    close_date: "2025-03-15T12:00",
+    // Active exam - started yesterday, closes tomorrow
+    start_date: getDateString(-1, 10),
+    close_date: getDateString(1, 18),
     duration: 60,
-    max_attempt: 1,
+    max_attempt: 3,
     is_shuffled: true,
     show_result_after: true,
     show_correct_answer: true,
     total_score: 100,
+    course_grade_contribution: 30,
     created_by: 4,
     created_at: "2025-02-01"
   },
@@ -705,14 +716,16 @@ export const exams = [
     course_id: 1,
     name: "Програмчлалын хэлүүд",
     description: "Python, Java, JavaScript, TypeScript сэдвийн шалгалт. Зураг, текст, тоон хариулт зэрэг олон төрөл.",
-    start_date: "2025-04-10T09:00",
-    close_date: "2025-04-10T11:00",
+    // Upcoming exam - starts in 3 days
+    start_date: getDateString(3, 9),
+    close_date: getDateString(4, 11),
     duration: 75,
-    max_attempt: 1,
+    max_attempt: 2,
     is_shuffled: true,
     show_result_after: true,
     show_correct_answer: true,
     total_score: 100,
+    course_grade_contribution: 25,
     created_by: 4,
     created_at: "2025-03-15"
   },
@@ -721,14 +734,16 @@ export const exams = [
     course_id: 1,
     name: "Өгөгдлийн сан ба Алгоритм",
     description: "MongoDB, PostgreSQL, Algorithms, Data Structures сэдвийн эцсийн шалгалт. Харгалзуулах, дараалал зэрэг асуултууд.",
-    start_date: "2025-05-20T09:00",
-    close_date: "2025-05-20T12:00",
+    // Upcoming exam - starts in 7 days
+    start_date: getDateString(7, 9),
+    close_date: getDateString(8, 12),
     duration: 90,
     max_attempt: 1,
     is_shuffled: true,
     show_result_after: true,
     show_correct_answer: false,
     total_score: 100,
+    course_grade_contribution: 40,
     created_by: 4,
     created_at: "2025-04-01"
   }

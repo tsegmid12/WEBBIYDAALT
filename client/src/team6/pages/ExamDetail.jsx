@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { exams, examQuestions, questionBank, courses, studentSubmissions } from '../data/mockData';
+import { exams, examQuestions, questionBank, courses, studentSubmissions, users } from '../data/mockData';
 import {
   Calendar,
   Clock,
@@ -7,6 +7,9 @@ import {
   FileText,
   BarChart3,
   Settings,
+  Users,
+  Award,
+  CheckCircle,
 } from 'lucide-react';
 
 const ExamDetail = () => {
@@ -25,6 +28,15 @@ const ExamDetail = () => {
 
   // Check if exam has been taken
   const hasSubmissions = studentSubmissions.some(s => s.exam_id === parseInt(exam_id));
+  const submissions = studentSubmissions.filter(s => s.exam_id === parseInt(exam_id));
+  
+  // Get eligible students
+  const eligibleStudentIds = exam?.eligible_student_ids || users.filter(u => u.role === 'student').map(u => u.id);
+  const eligibleStudents = users.filter(u => eligibleStudentIds.includes(u.id));
+
+  // Calculate total points
+  const totalPoints = questions.reduce((sum, q) => sum + q.point, 0);
+  const courseGradeContribution = exam?.course_grade_contribution || 20;
 
   if (!exam) {
     return (
@@ -37,7 +49,12 @@ const ExamDetail = () => {
     );
   }
 
-  const totalPoints = questions.reduce((sum, q) => sum + q.point, 0);
+  const now = new Date();
+  const startDate = new Date(exam.start_date);
+  const closeDate = new Date(exam.close_date);
+  const isUpcoming = now < startDate;
+  const isActive = now >= startDate && now <= closeDate;
+  const isCompleted = now > closeDate;
 
   return (
     <div className='space-y-6'>
@@ -49,7 +66,7 @@ const ExamDetail = () => {
             ← {course?.name || 'Хичээл'} руу буцах
           </Link>
           <h1 className='text-3xl font-bold text-gray-900'>{exam.name}</h1>
-          <p className='text-gray-600 mt-2'>{exam.description}</p>
+          <p className='text-gray-600 mt-2'>{exam.description || 'Тайлбар байхгүй'}</p>
         </div>
         <div className='flex gap-2'>
           {!hasSubmissions && (
@@ -63,6 +80,30 @@ const ExamDetail = () => {
         </div>
       </div>
 
+      {/* Status Badge */}
+      <div className='bg-white rounded-lg shadow p-4'>
+        <div className='flex items-center gap-3'>
+          <span className={`px-4 py-2 rounded-full text-sm font-medium ${
+            isUpcoming
+              ? 'bg-yellow-100 text-yellow-800'
+              : isActive
+              ? 'bg-green-100 text-green-800'
+              : 'bg-gray-100 text-gray-800'
+          }`}>
+            {isUpcoming
+              ? 'Ирээдүйд'
+              : isActive
+              ? 'Идэвхтэй'
+              : 'Дууссан'}
+          </span>
+          {submissions.length > 0 && (
+            <span className='text-sm text-gray-600'>
+              {submissions.length} оюутан өгсөн
+            </span>
+          )}
+        </div>
+      </div>
+
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
         <div className='bg-white rounded-lg shadow p-6'>
           <div className='flex items-center gap-3 mb-2'>
@@ -70,8 +111,10 @@ const ExamDetail = () => {
             <h3 className='font-semibold text-gray-900'>Огноо</h3>
           </div>
           <p className='text-sm text-gray-600'>
-            {new Date(exam.start_date).toLocaleDateString('mn-MN')} -{' '}
-            {new Date(exam.close_date).toLocaleDateString('mn-MN')}
+            Эхлэх: {new Date(exam.start_date).toLocaleString('mn-MN')}
+          </p>
+          <p className='text-sm text-gray-600'>
+            Дуусах: {new Date(exam.close_date).toLocaleString('mn-MN')}
           </p>
         </div>
 
@@ -81,6 +124,9 @@ const ExamDetail = () => {
             <h3 className='font-semibold text-gray-900'>Хугацаа</h3>
           </div>
           <p className='text-sm text-gray-600'>{exam.duration} минут</p>
+          <p className='text-xs text-gray-500 mt-1'>
+            Хэдэн удаа өгч болох: {exam.max_attempt === 1 ? '1 удаа' : `${exam.max_attempt} удаа`}
+          </p>
         </div>
 
         <div className='bg-white rounded-lg shadow p-6'>
@@ -89,11 +135,75 @@ const ExamDetail = () => {
             <h3 className='font-semibold text-gray-900'>Асуулт</h3>
           </div>
           <p className='text-sm text-gray-600'>
-            {questions.length} асуулт ({totalPoints} оноо)
+            {questions.length} асуулт
+          </p>
+          <p className='text-sm text-gray-600'>
+            Нийт оноо: {totalPoints} / {exam.total_score}
           </p>
         </div>
       </div>
 
+      {/* Score and Contribution */}
+      <div className='bg-white rounded-lg shadow p-6'>
+        <h2 className='text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2'>
+          <Award size={24} />
+          Оноо ба хувь нэмэр
+        </h2>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+            <p className='text-sm text-gray-600 mb-1'>Нийт оноо</p>
+            <p className='text-2xl font-bold text-blue-600'>
+              {totalPoints} / {exam.total_score}
+            </p>
+            <p className='text-xs text-gray-500 mt-1'>
+              Хамгийн өндөр оноотой оюутан {exam.total_score} оноо авна
+            </p>
+          </div>
+          <div className='bg-green-50 border border-green-200 rounded-lg p-4'>
+            <p className='text-sm text-gray-600 mb-1'>Хичээлийн дүнд эзлэх хувь</p>
+            <p className='text-2xl font-bold text-green-600'>
+              {courseGradeContribution}%
+            </p>
+            <p className='text-xs text-gray-500 mt-1'>
+              Энэ шалгалт хичээлийн дүнд {courseGradeContribution}% эзлэнэ
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Eligible Students */}
+      <div className='bg-white rounded-lg shadow p-6'>
+        <h2 className='text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2'>
+          <Users size={24} />
+          Шалгалт өгөх боломжтой оюутнууд
+        </h2>
+        <p className='text-sm text-gray-600 mb-4'>
+          Нийт {eligibleStudents.length} оюутан
+        </p>
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-2 max-h-60 overflow-y-auto'>
+          {eligibleStudents.map(student => {
+            const studentSubmissions = submissions.filter(s => s.student_id === student.id);
+            const attemptCount = studentSubmissions.length;
+            return (
+              <div
+                key={student.id}
+                className='p-3 border border-gray-200 rounded-lg hover:bg-gray-50'>
+                <p className='text-sm font-medium text-gray-900'>
+                  {student.first_name}
+                </p>
+                <p className='text-xs text-gray-500'>ID: {student.id}</p>
+                {attemptCount > 0 && (
+                  <p className='text-xs text-blue-600 mt-1'>
+                    {attemptCount} удаа өгсөн
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Configuration */}
       <div className='bg-white rounded-lg shadow p-6'>
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-xl font-semibold text-gray-900'>Тохиргоо</h2>
@@ -135,6 +245,7 @@ const ExamDetail = () => {
         </div>
       </div>
 
+      {/* Questions List */}
       <div className='bg-white rounded-lg shadow p-6'>
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-xl font-semibold text-gray-900'>Асуултууд</h2>
@@ -160,7 +271,54 @@ const ExamDetail = () => {
         </div>
       </div>
 
-      <div className='flex justify-end'>
+      {/* Student Submissions Summary */}
+      {submissions.length > 0 && (
+        <div className='bg-white rounded-lg shadow p-6'>
+          <h2 className='text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2'>
+            <CheckCircle size={24} />
+            Оюутнуудын үр дүн
+          </h2>
+          <div className='space-y-2'>
+            {submissions.slice(0, 10).map(submission => {
+              const student = users.find(u => u.id === submission.student_id);
+              const completionTime = submission.completion_time_minutes || 
+                Math.floor((new Date(submission.submit_time) - new Date(submission.start_time)) / 1000 / 60);
+              return (
+                <div
+                  key={submission.id}
+                  className='flex items-center justify-between p-3 border border-gray-200 rounded-lg'>
+                  <div>
+                    <p className='font-medium text-gray-900'>
+                      {student?.first_name || `Оюутан ${submission.student_id}`}
+                    </p>
+                    <p className='text-xs text-gray-500'>
+                      {submission.attempt_number ? `${submission.attempt_number}-р оролдлого` : '1-р оролдлого'} • 
+                      {' '}Дуусгасан: {completionTime} минут
+                    </p>
+                  </div>
+                  <div className='text-right'>
+                    <p className='font-semibold text-gray-900'>
+                      {submission.grade_point.toFixed(1)}%
+                    </p>
+                    <p className='text-xs text-gray-500'>
+                      {submission.total_earned}/{submission.total_possible}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+            {submissions.length > 10 && (
+              <Link
+                to={`/team6/exams/${exam_id}/report`}
+                className='block text-center text-blue-600 hover:underline mt-4'>
+                Бүх үр дүн харах ({submissions.length} оюутан)
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className='flex justify-end gap-4'>
         <Link
           to={`/team6/exams/${exam_id}/report`}
           className='bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2'>
@@ -173,4 +331,3 @@ const ExamDetail = () => {
 };
 
 export default ExamDetail;
-
