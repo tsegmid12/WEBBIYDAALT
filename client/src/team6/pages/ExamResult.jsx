@@ -8,10 +8,39 @@ import { Award, CheckCircle, XCircle, Eye, ArrowLeft, RotateCcw } from 'lucide-r
 
 const ExamResult = () => {
   const { exam_id, student_id } = useParams();
-  const exam = exams.find(e => e.id === parseInt(exam_id));
-  const submission = studentSubmissions.find(
+  
+  // Load exams from both mockData and localStorage
+  const localStorageExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
+  const allExams = [...exams];
+  localStorageExams.forEach(lsExam => {
+    const existingIndex = allExams.findIndex(e => e.id === lsExam.id);
+    if (existingIndex >= 0) {
+      allExams[existingIndex] = lsExam;
+    } else {
+      allExams.push(lsExam);
+    }
+  });
+  
+  const exam = allExams.find(e => e.id === parseInt(exam_id));
+  
+  // Load submissions from both mockData and localStorage
+  const localStorageSubmissions = JSON.parse(localStorage.getItem('all_exam_submissions') || '[]');
+  const allSubmissions = [...studentSubmissions];
+  localStorageSubmissions.forEach(lsSub => {
+    const existingIndex = allSubmissions.findIndex(
+      s => s.exam_id === lsSub.exam_id && s.student_id === lsSub.student_id && s.attempt_number === lsSub.attempt_number
+    );
+    if (existingIndex >= 0) {
+      allSubmissions[existingIndex] = lsSub;
+    } else {
+      allSubmissions.push(lsSub);
+    }
+  });
+  
+  const submission = allSubmissions.find(
     s => s.exam_id === parseInt(exam_id) && s.student_id === parseInt(student_id)
   );
+  
   const course = exam
     ? courses.find(c => c.id === exam.course_id)
     : null;

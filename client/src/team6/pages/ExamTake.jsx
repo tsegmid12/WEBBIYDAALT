@@ -11,8 +11,34 @@ import { Clock, CheckCircle, AlertTriangle, ChevronLeft, ChevronRight, Image as 
 const ExamTake = () => {
   const { exam_id, student_id } = useParams();
   const navigate = useNavigate();
-  const exam = exams.find(e => e.id === parseInt(exam_id));
-  const examQuestionsList = examQuestions.filter(
+  
+  // Load exams from both mockData and localStorage
+  const localStorageExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
+  const allExams = [...exams];
+  localStorageExams.forEach(lsExam => {
+    const existingIndex = allExams.findIndex(e => e.id === lsExam.id);
+    if (existingIndex >= 0) {
+      allExams[existingIndex] = lsExam;
+    } else {
+      allExams.push(lsExam);
+    }
+  });
+  
+  const exam = allExams.find(e => e.id === parseInt(exam_id));
+  
+  // Load exam questions from both mockData and localStorage
+  const localStorageExamQuestions = JSON.parse(localStorage.getItem('all_exam_questions') || '[]');
+  const allExamQuestions = [...examQuestions];
+  localStorageExamQuestions.forEach(lsEq => {
+    const existingIndex = allExamQuestions.findIndex(eq => eq.exam_id === lsEq.exam_id && eq.question_id === lsEq.question_id);
+    if (existingIndex >= 0) {
+      allExamQuestions[existingIndex] = lsEq;
+    } else {
+      allExamQuestions.push(lsEq);
+    }
+  });
+  
+  const examQuestionsList = allExamQuestions.filter(
     eq => eq.exam_id === parseInt(exam_id)
   );
   const questions = examQuestionsList
@@ -634,7 +660,10 @@ const ExamTake = () => {
                 : 'bg-blue-50 text-blue-700 border-2 border-blue-500'
             }`}>
               <Clock size={24} />
-              <span className='font-mono'>{formatTime(timeRemaining)}</span>
+              <div className='flex flex-col'>
+                <span className='font-mono'>{formatTime(timeRemaining)}</span>
+                <span className='text-xs font-normal opacity-75'>Нийт: {formatTime(exam?.duration * 60 || 0)}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1012,9 +1041,60 @@ const ExamTake = () => {
         )}
       </div>
 
+      {/* Completed Questions Summary */}
+      <div className='bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg shadow-lg p-6 border-2 border-green-200'>
+        <div className='flex items-center justify-between mb-4'>
+          <div className='flex items-center gap-3'>
+            <CheckCircle className='text-green-600' size={24} />
+            <div>
+              <h3 className='font-bold text-gray-900 text-lg'>Хариулсан асуултууд</h3>
+              <p className='text-sm text-gray-600'>
+                {answeredCount} / {questions.length} асуултанд хариулсан • Хугацаа: {formatTime(timeRemaining)} үлдлээ
+              </p>
+            </div>
+          </div>
+          <div className='text-right'>
+            <div className='text-2xl font-bold text-green-700'>{answeredCount}</div>
+            <div className='text-xs text-gray-600'>асуулт</div>
+          </div>
+        </div>
+        <div className='grid grid-cols-5 md:grid-cols-10 gap-2'>
+          {questions.map((q, index) => {
+            const isAnswered = !!answers[q.question.id];
+            return (
+              <button
+                key={q.id}
+                onClick={() => setCurrentQuestionIndex(index)}
+                className={`p-2 rounded-lg border-2 text-xs font-medium transition-all ${
+                  isAnswered
+                    ? 'border-green-500 bg-green-100 text-green-900 hover:border-green-600 hover:bg-green-200'
+                    : 'border-gray-300 bg-gray-100 text-gray-500 hover:border-gray-400'
+                }`}
+                title={`Асуулт ${index + 1}${isAnswered ? ' - Хариулсан' : ' - Хариулаагүй'}`}>
+                {index + 1}
+              </button>
+            );
+          })}
+        </div>
+        <div className='mt-4 pt-4 border-t border-green-300 flex items-center gap-4 text-xs'>
+          <div className='flex items-center gap-2'>
+            <div className='w-4 h-4 bg-green-500 rounded'></div>
+            <span className='text-gray-700'>Хариулсан ({answeredCount})</span>
+          </div>
+          <div className='flex items-center gap-2'>
+            <div className='w-4 h-4 bg-gray-300 rounded'></div>
+            <span className='text-gray-700'>Хариулаагүй ({unansweredCount})</span>
+          </div>
+          <div className='ml-auto flex items-center gap-2 text-gray-600'>
+            <Clock size={14} />
+            <span>Үлдсэн хугацаа: {formatTime(timeRemaining)}</span>
+          </div>
+        </div>
+      </div>
+
       {/* Question Navigator */}
       <div className='bg-white rounded-lg shadow-lg p-6'>
-        <h3 className='font-semibold text-gray-900 mb-4'>Асуултууд</h3>
+        <h3 className='font-semibold text-gray-900 mb-4'>Бүх асуултууд</h3>
         <div className='grid grid-cols-5 md:grid-cols-10 gap-2'>
           {questions.map((q, index) => (
             <button

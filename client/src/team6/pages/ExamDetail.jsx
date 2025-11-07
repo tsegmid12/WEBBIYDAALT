@@ -15,11 +15,37 @@ import {
 const ExamDetail = () => {
   const { exam_id } = useParams();
   const navigate = useNavigate();
-  const exam = exams.find(e => e.id === parseInt(exam_id));
+  
+  // Load exams from both mockData and localStorage
+  const localStorageExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
+  const allExams = [...exams];
+  localStorageExams.forEach(lsExam => {
+    const existingIndex = allExams.findIndex(e => e.id === lsExam.id);
+    if (existingIndex >= 0) {
+      allExams[existingIndex] = lsExam;
+    } else {
+      allExams.push(lsExam);
+    }
+  });
+  
+  const exam = allExams.find(e => e.id === parseInt(exam_id));
   const course = exam
     ? courses.find(c => c.id === exam.course_id)
     : null;
-  const questions = examQuestions
+  
+  // Load exam questions from both mockData and localStorage
+  const localStorageExamQuestions = JSON.parse(localStorage.getItem('all_exam_questions') || '[]');
+  const allExamQuestions = [...examQuestions];
+  localStorageExamQuestions.forEach(lsEq => {
+    const existingIndex = allExamQuestions.findIndex(eq => eq.exam_id === lsEq.exam_id && eq.question_id === lsEq.question_id);
+    if (existingIndex >= 0) {
+      allExamQuestions[existingIndex] = lsEq;
+    } else {
+      allExamQuestions.push(lsEq);
+    }
+  });
+  
+  const questions = allExamQuestions
     .filter(eq => eq.exam_id === parseInt(exam_id))
     .map(eq => ({
       ...eq,

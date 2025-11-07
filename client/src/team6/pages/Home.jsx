@@ -1,7 +1,22 @@
 import { Link } from "react-router-dom";
-import { courses, exams, studentSubmissions, users } from "../data/mockData";
+import {
+  courses,
+  exams,
+  studentSubmissions,
+  users,
+  examQuestions,
+} from "../data/mockData";
 import { getSelectedRole, isTeacher, isStudent } from "../utils/role";
-import { BookOpen, FileText, Award, Clock, Calendar } from "lucide-react";
+import {
+  BookOpen,
+  FileText,
+  Award,
+  Clock,
+  Calendar,
+  Play,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
 
 const Home = () => {
   const selectedRole = getSelectedRole();
@@ -86,8 +101,58 @@ const Home = () => {
     const studentId = users.find((u) => u.role === "student")?.id || 5;
     const now = new Date();
 
-    // Categorize exams
-    const activeExams = exams.filter((exam) => {
+    // Load exams from both mockData and localStorage
+    const localStorageExams = JSON.parse(
+      localStorage.getItem("all_exams") || "[]"
+    );
+    const allExams = [...exams];
+    localStorageExams.forEach((lsExam) => {
+      const existingIndex = allExams.findIndex((e) => e.id === lsExam.id);
+      if (existingIndex >= 0) {
+        allExams[existingIndex] = lsExam;
+      } else {
+        allExams.push(lsExam);
+      }
+    });
+
+    // Get all exams organized by course
+    const examsByCourse = courses
+      .map((course) => {
+        const courseExams = allExams.filter((e) => e.course_id === course.id);
+        return {
+          course,
+          exams: courseExams.map((exam) => {
+            const startDate = new Date(exam.start_date);
+            const closeDate = new Date(exam.close_date);
+            const studentAttempts = studentSubmissions.filter(
+              (s) => s.exam_id === exam.id && s.student_id === studentId
+            );
+            const submission = studentAttempts[studentAttempts.length - 1]; // Latest submission
+            const canTake = studentAttempts.length < (exam.max_attempt || 1);
+            const isActive = now >= startDate && now <= closeDate;
+            const isUpcoming = now < startDate;
+            const isExpired = now > closeDate;
+
+            return {
+              ...exam,
+              status: submission
+                ? "completed"
+                : isExpired
+                ? "expired"
+                : isActive
+                ? "active"
+                : "upcoming",
+              canTake,
+              submission,
+              attemptsCount: studentAttempts.length,
+            };
+          }),
+        };
+      })
+      .filter((c) => c.exams.length > 0);
+
+    // Categorize exams for quick access
+    const activeExams = allExams.filter((exam) => {
       const startDate = new Date(exam.start_date);
       const closeDate = new Date(exam.close_date);
       const studentAttempts = studentSubmissions.filter(
@@ -95,11 +160,10 @@ const Home = () => {
       );
       const canTake = studentAttempts.length < (exam.max_attempt || 1);
       const isActive = now >= startDate && now <= closeDate;
-      // Show active exams if they're within date range and student can still take them
       return isActive && canTake;
     });
 
-    const upcomingExams = exams.filter((exam) => {
+    const upcomingExams = allExams.filter((exam) => {
       const startDate = new Date(exam.start_date);
       const closeDate = new Date(exam.close_date);
       const isUpcoming = now < startDate;
@@ -108,19 +172,83 @@ const Home = () => {
         (s) => s.exam_id === exam.id && s.student_id === studentId
       );
       const canTake = studentAttempts.length < (exam.max_attempt || 1);
-      // Show upcoming exams if they haven't started yet and student can take them
       return isUpcoming && isNotExpired && canTake;
     });
 
+    const expiredExams = allExams.filter((exam) => {
+      const closeDate = new Date(exam.close_date);
+      const studentAttempts = studentSubmissions.filter(
+        (s) => s.exam_id === exam.id && s.student_id === studentId
+      );
+      return now > closeDate && studentAttempts.length === 0;
+    });
+
+    // Get submissions from both mockData and localStorage
     const mySubmissions = studentSubmissions.filter(
       (s) => s.student_id === studentId
     );
-    const resultExams = mySubmissions
+
+    // Also check localStorage for new submissions
+    const globalSubmissions = JSON.parse(
+      localStorage.getItem("all_exam_submissions") || "[]"
+    );
+    const localStorageSubmissions = globalSubmissions.filter(
+      (s) => s.student_id === parseInt(studentId)
+    );
+
+    // Combine and deduplicate submissions (localStorage takes priority for same exam)
+    const allSubmissions = [...mySubmissions];
+    localStorageSubmissions.forEach((ls) => {
+      const existingIndex = allSubmissions.findIndex(
+        (s) =>
+          s.exam_id === ls.exam_id &&
+          s.student_id === ls.student_id &&
+          s.attempt_number === ls.attempt_number
+      );
+      if (existingIndex >= 0) {
+        allSubmissions[existingIndex] = ls;
+      } else {
+        allSubmissions.push(ls);
+      }
+    });
+
+    const resultExams = allSubmissions
       .map((submission) => {
-        const exam = exams.find((e) => e.id === submission.exam_id);
+        const exam = allExams.find((e) => e.id === submission.exam_id);
         return exam ? { exam, submission } : null;
       })
       .filter(Boolean);
+
+    // Helper function to check if exam is in progress
+    const isExamInProgress = (exam) => {
+      const answersKey = `exam_${exam.id}_student_${studentId}_answers`;
+      const savedAnswers = localStorage.getItem(answersKey);
+      const hasProgress =
+        savedAnswers &&
+        Object.keys(JSON.parse(savedAnswers || "{}")).length > 0;
+      if (!hasProgress) return false;
+
+      const submissionsKey = `exam_submissions_${exam.id}_${studentId}`;
+      const savedSubmissions = JSON.parse(
+        localStorage.getItem(submissionsKey) || "[]"
+      );
+      const hasSubmitted = savedSubmissions.length > 0;
+
+      return !hasSubmitted;
+    };
+
+    // Check for in-progress exams (saved in localStorage but not submitted)
+    const inProgressExams = allExams.filter((exam) => {
+      const startDate = new Date(exam.start_date);
+      const closeDate = new Date(exam.close_date);
+      const isActive = now >= startDate && now <= closeDate;
+      return isActive && isExamInProgress(exam);
+    });
+
+    // Filter active exams to exclude in-progress ones for "new exams to start" section
+    const newActiveExams = activeExams.filter(
+      (exam) => !isExamInProgress(exam)
+    );
 
     return (
       <div className="space-y-6">
@@ -131,38 +259,201 @@ const Home = () => {
           <p className="text-gray-600 mt-2">Таны шалгалтууд</p>
         </div>
 
-        {/* Active Exams */}
-        {activeExams.length > 0 && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-              Идэвхтэй шалгалтууд
-            </h2>
-            <div className="grid gap-4">
-              {activeExams.map((exam) => (
-                <Link
-                  key={exam.id}
-                  to={`/team6/exams/${exam.id}/students/${studentId}`}
-                  className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow border-l-4 border-green-500"
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                        {exam.name}
-                      </h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span className="flex items-center gap-1">
-                          <Clock size={16} />
-                          {exam.duration} минут
-                        </span>
-                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                          Идэвхтэй
-                        </span>
-                      </div>
-                    </div>
+        {/* Exam Taking Section - Prominent section for active exams */}
+        {(newActiveExams.length > 0 || inProgressExams.length > 0) && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200 shadow-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-blue-600 rounded-lg">
+                <Play className="text-white" size={24} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Шалгалт өгөх
+                </h2>
+                <p className="text-gray-600 text-sm">
+                  Идэвхтэй шалгалтууд болон үргэлжлүүлэх шалгалтууд
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {/* In-Progress Exams */}
+              {inProgressExams.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <AlertCircle className="text-orange-500" size={18} />
+                    Үргэлжлүүлэх шалгалтууд
+                  </h3>
+                  <div className="grid gap-3">
+                    {inProgressExams.map((exam) => {
+                      const course = courses.find(
+                        (c) => c.id === exam.course_id
+                      );
+                      const answersKey = `exam_${exam.id}_student_${studentId}_answers`;
+                      const savedAnswers = JSON.parse(
+                        localStorage.getItem(answersKey) || "{}"
+                      );
+                      const answeredCount = Object.keys(savedAnswers).length;
+                      const examQuestionsList = examQuestions.filter(
+                        (eq) => eq.exam_id === exam.id
+                      );
+                      const examQuestionsCount = examQuestionsList.length;
+
+                      return (
+                        <Link
+                          key={exam.id}
+                          to={`/team6/exams/${exam.id}/students/${studentId}/edit`}
+                          className="bg-white rounded-lg p-5 border-2 border-orange-400 hover:border-orange-500 hover:shadow-md transition-all"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h4 className="text-lg font-bold text-gray-900">
+                                  {exam.name}
+                                </h4>
+                                <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
+                                  Үргэлжлүүлэх
+                                </span>
+                              </div>
+                              {course && (
+                                <p className="text-sm text-gray-600 mb-2">
+                                  {course.name}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-4 text-sm text-gray-600">
+                                <span className="flex items-center gap-1">
+                                  <Clock size={14} />
+                                  {exam.duration} минут
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <CheckCircle size={14} />
+                                  {answeredCount} асуултанд хариулсан
+                                </span>
+                              </div>
+                              <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-orange-500 h-2 rounded-full transition-all"
+                                  style={{
+                                    width: `${
+                                      (answeredCount / examQuestionsCount) * 100
+                                    }%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors">
+                                <Play size={18} />
+                                <span className="font-semibold">
+                                  Үргэлжлүүлэх
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
                   </div>
-                </Link>
-              ))}
+                </div>
+              )}
+
+              {/* Available Exams to Start */}
+              {newActiveExams.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <CheckCircle className="text-green-500" size={18} />
+                    Шинэ шалгалт эхлүүлэх
+                  </h3>
+                  <div className="grid gap-3">
+                    {newActiveExams.map((exam) => {
+                      const course = courses.find(
+                        (c) => c.id === exam.course_id
+                      );
+                      const examQuestionsList = examQuestions.filter(
+                        (eq) => eq.exam_id === exam.id
+                      );
+
+                      return (
+                        <Link
+                          key={exam.id}
+                          to={`/team6/exams/${exam.id}/students/${studentId}`}
+                          className="bg-white rounded-lg p-5 border-2 border-green-400 hover:border-green-500 hover:shadow-md transition-all"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h4 className="text-lg font-bold text-gray-900">
+                                  {exam.name}
+                                </h4>
+                                <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                  Идэвхтэй
+                                </span>
+                              </div>
+                              {course && (
+                                <p className="text-sm text-gray-600 mb-2">
+                                  {course.name}
+                                </p>
+                              )}
+                              {exam.description && (
+                                <p className="text-sm text-gray-700 mb-2 line-clamp-2">
+                                  {exam.description}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-4 text-sm text-gray-600">
+                                <span className="flex items-center gap-1">
+                                  <Clock size={14} />
+                                  {exam.duration} минут
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <FileText size={14} />
+                                  {exam.max_attempt === 1
+                                    ? "1 удаа"
+                                    : `${exam.max_attempt} удаа`}{" "}
+                                  оролдох
+                                </span>
+                                {exam.course_grade_contribution && (
+                                  <span className="flex items-center gap-1">
+                                    <Award size={14} />
+                                    {exam.course_grade_contribution}% хувь
+                                  </span>
+                                )}
+                              </div>
+                              <div className="mt-2 text-xs text-gray-500">
+                                Эхлэх:{" "}
+                                {new Date(exam.start_date).toLocaleString(
+                                  "mn-MN",
+                                  {
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}{" "}
+                                • Дуусах:{" "}
+                                {new Date(exam.close_date).toLocaleString(
+                                  "mn-MN",
+                                  {
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-md hover:shadow-lg">
+                                <Play size={20} />
+                                <span className="font-semibold">Эхлүүлэх</span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -250,9 +541,146 @@ const Home = () => {
           </div>
         )}
 
+        {/* Expired Exams */}
+        {expiredExams.length > 0 && (
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="w-3 h-3 bg-gray-500 rounded-full"></span>
+              Дууссан шалгалтууд
+            </h2>
+            <div className="grid gap-4">
+              {expiredExams.map((exam) => {
+                const course = courses.find((c) => c.id === exam.course_id);
+                return (
+                  <div
+                    key={exam.id}
+                    className="bg-white rounded-lg shadow p-6 border-l-4 border-gray-400 opacity-75"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                          {exam.name}
+                        </h3>
+                        {course && (
+                          <p className="text-sm text-gray-600 mb-2">
+                            {course.name}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <span className="flex items-center gap-1">
+                            <Calendar size={16} />
+                            Дууссан:{" "}
+                            {new Date(exam.close_date).toLocaleDateString(
+                              "mn-MN"
+                            )}
+                          </span>
+                        </div>
+                        <span className="inline-block mt-2 px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+                          Дууссан
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* All Exams by Course */}
+        {examsByCourse.length > 0 && (
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="w-3 h-3 bg-indigo-500 rounded-full"></span>
+              Бүх шалгалтууд (Хичээлээр)
+            </h2>
+            <div className="space-y-6">
+              {examsByCourse.map(({ course, exams: courseExams }) => (
+                <div key={course.id} className="bg-white rounded-lg shadow p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    {course.name}
+                  </h3>
+                  <div className="grid gap-3">
+                    {courseExams.map((exam) => {
+                      const statusColors = {
+                        active: "border-green-500 bg-green-50",
+                        upcoming: "border-yellow-500 bg-yellow-50",
+                        completed: "border-blue-500 bg-blue-50",
+                        expired: "border-gray-400 bg-gray-50 opacity-75",
+                      };
+                      const statusLabels = {
+                        active: "Идэвхтэй",
+                        upcoming: "Ирээдүй",
+                        completed: "Дууссан",
+                        expired: "Дууссан",
+                      };
+
+                      return (
+                        <Link
+                          key={exam.id}
+                          to={
+                            exam.submission
+                              ? `/team6/exams/${exam.id}/students/${studentId}/result`
+                              : `/team6/exams/${exam.id}/students/${studentId}`
+                          }
+                          className={`rounded-lg p-4 border-l-4 hover:shadow-md transition-shadow ${
+                            statusColors[exam.status] || "border-gray-300"
+                          }`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 mb-1">
+                                {exam.name}
+                              </h4>
+                              <div className="flex items-center gap-4 text-sm text-gray-600">
+                                <span className="flex items-center gap-1">
+                                  <Clock size={14} />
+                                  {exam.duration} минут
+                                </span>
+                                {exam.attemptsCount > 0 && (
+                                  <span className="text-xs">
+                                    {exam.attemptsCount}/{exam.max_attempt}{" "}
+                                    оролдлого
+                                  </span>
+                                )}
+                              </div>
+                              {exam.submission && (
+                                <div className="mt-2 flex items-center gap-2">
+                                  <Award size={14} className="text-blue-600" />
+                                  <span className="text-sm font-medium text-blue-900">
+                                    {exam.submission.grade_point.toFixed(1)}%
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                exam.status === "active"
+                                  ? "bg-green-100 text-green-800"
+                                  : exam.status === "upcoming"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : exam.status === "completed"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-gray-100 text-gray-800"
+                              }`}
+                            >
+                              {statusLabels[exam.status]}
+                            </span>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {activeExams.length === 0 &&
           upcomingExams.length === 0 &&
-          resultExams.length === 0 && (
+          resultExams.length === 0 &&
+          expiredExams.length === 0 && (
             <div className="bg-white rounded-lg shadow p-8 text-center">
               <FileText size={48} className="mx-auto text-gray-400 mb-4" />
               <p className="text-gray-600 text-lg">

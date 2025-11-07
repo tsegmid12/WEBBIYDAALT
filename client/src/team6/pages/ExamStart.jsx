@@ -7,7 +7,20 @@ const ExamStart = () => {
   const { exam_id, student_id } = useParams();
   const navigate = useNavigate();
   const [showClosedWarning, setShowClosedWarning] = useState(false);
-  const exam = exams.find(e => e.id === parseInt(exam_id));
+  
+  // Load exams from both mockData and localStorage
+  const localStorageExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
+  const allExams = [...exams];
+  localStorageExams.forEach(lsExam => {
+    const existingIndex = allExams.findIndex(e => e.id === lsExam.id);
+    if (existingIndex >= 0) {
+      allExams[existingIndex] = lsExam;
+    } else {
+      allExams.push(lsExam);
+    }
+  });
+  
+  const exam = allExams.find(e => e.id === parseInt(exam_id));
   const course = exam
     ? courses.find(c => c.id === exam.course_id)
     : null;
@@ -19,8 +32,18 @@ const ExamStart = () => {
   const nextAttemptNumber = studentAttempts.length + 1;
   const canTakeExam = nextAttemptNumber <= (exam?.max_attempt || 1);
   
-  // Get exam questions for total score display
-  const examQuestionsList = examQuestions.filter(eq => eq.exam_id === parseInt(exam_id));
+  // Get exam questions for total score display (from both mockData and localStorage)
+  const localStorageExamQuestions = JSON.parse(localStorage.getItem('all_exam_questions') || '[]');
+  const allExamQuestions = [...examQuestions];
+  localStorageExamQuestions.forEach(lsEq => {
+    const existingIndex = allExamQuestions.findIndex(eq => eq.exam_id === lsEq.exam_id && eq.question_id === lsEq.question_id);
+    if (existingIndex >= 0) {
+      allExamQuestions[existingIndex] = lsEq;
+    } else {
+      allExamQuestions.push(lsEq);
+    }
+  });
+  const examQuestionsList = allExamQuestions.filter(eq => eq.exam_id === parseInt(exam_id));
   const totalPoints = examQuestionsList.reduce((sum, eq) => sum + eq.point, 0);
 
   if (!exam) {

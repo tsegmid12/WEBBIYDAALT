@@ -6,7 +6,30 @@ import { useState } from 'react';
 const ExamList = () => {
   const { course_id } = useParams();
   const course = courses.find(c => c.id === parseInt(course_id));
-  const courseExams = exams.filter(e => e.course_id === parseInt(course_id));
+  
+  // Load exams from both mockData and localStorage
+  const localStorageExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
+  const allExams = [...exams];
+  localStorageExams.forEach(lsExam => {
+    const existingIndex = allExams.findIndex(e => e.id === lsExam.id);
+    if (existingIndex >= 0) {
+      allExams[existingIndex] = lsExam;
+    } else {
+      allExams.push(lsExam);
+    }
+  });
+  
+  // Debug logging
+  console.log('ExamList - Course ID:', course_id, '(type:', typeof course_id, ')');
+  console.log('ExamList - All exams:', allExams.length);
+  console.log('ExamList - localStorage exams:', localStorageExams.length);
+  console.log('ExamList - Exams for course:', allExams.filter(e => {
+    const matches = e.course_id === parseInt(course_id);
+    if (matches) console.log('  - Found exam:', e.id, e.name, 'course_id:', e.course_id, '(type:', typeof e.course_id, ')');
+    return matches;
+  }).length);
+  
+  const courseExams = allExams.filter(e => e.course_id === parseInt(course_id));
   const [filter, setFilter] = useState('all'); // 'all', 'active', 'upcoming', 'completed'
 
   const now = new Date();

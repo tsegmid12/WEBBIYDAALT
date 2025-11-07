@@ -26,12 +26,53 @@ import {
 
 const ExamReport = () => {
   const { exam_id } = useParams();
-  const exam = exams.find(e => e.id === parseInt(exam_id));
-  const submissions = studentSubmissions.filter(
+  
+  // Load exams from both mockData and localStorage
+  const localStorageExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
+  const allExams = [...exams];
+  localStorageExams.forEach(lsExam => {
+    const existingIndex = allExams.findIndex(e => e.id === lsExam.id);
+    if (existingIndex >= 0) {
+      allExams[existingIndex] = lsExam;
+    } else {
+      allExams.push(lsExam);
+    }
+  });
+  
+  const exam = allExams.find(e => e.id === parseInt(exam_id));
+  
+  // Load submissions from both mockData and localStorage
+  const localStorageSubmissions = JSON.parse(localStorage.getItem('all_exam_submissions') || '[]');
+  const allSubmissions = [...studentSubmissions];
+  localStorageSubmissions.forEach(lsSub => {
+    const existingIndex = allSubmissions.findIndex(
+      s => s.exam_id === lsSub.exam_id && s.student_id === lsSub.student_id && s.attempt_number === lsSub.attempt_number
+    );
+    if (existingIndex >= 0) {
+      allSubmissions[existingIndex] = lsSub;
+    } else {
+      allSubmissions.push(lsSub);
+    }
+  });
+  
+  const submissions = allSubmissions.filter(
     s => s.exam_id === parseInt(exam_id)
   );
+  
+  // Load exam questions from both mockData and localStorage
+  const localStorageExamQuestions = JSON.parse(localStorage.getItem('all_exam_questions') || '[]');
+  const allExamQuestions = [...examQuestions];
+  localStorageExamQuestions.forEach(lsEq => {
+    const existingIndex = allExamQuestions.findIndex(eq => eq.exam_id === lsEq.exam_id && eq.question_id === lsEq.question_id);
+    if (existingIndex >= 0) {
+      allExamQuestions[existingIndex] = lsEq;
+    } else {
+      allExamQuestions.push(lsEq);
+    }
+  });
+  
   const stats = exam ? getExamStats(parseInt(exam_id)) : null;
-  const examQuestionsList = examQuestions.filter(eq => eq.exam_id === parseInt(exam_id));
+  const examQuestionsList = allExamQuestions.filter(eq => eq.exam_id === parseInt(exam_id));
 
   // Get total students enrolled in the course
   const totalStudentsInCourse = users.filter(u => u.role === 'student').length;

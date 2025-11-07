@@ -164,20 +164,79 @@ const ExamCreate = () => {
       }));
     }
 
+    // Validate required fields
+    if (!formData.name || !formData.start_date || !formData.close_date) {
+      alert('Бүх шаардлагатай талбаруудыг бөглөнө үү!');
+      return;
+    }
+
+    // Validate dates
+    const startDate = new Date(formData.start_date);
+    const closeDate = new Date(formData.close_date);
+    if (closeDate <= startDate) {
+      alert('Дуусах огноо эхлэх огнооноос хойш байх ёстой!');
+      return;
+    }
+
+    // Get existing exams from localStorage or use mockData
+    const existingExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
+    const existingExamQuestions = JSON.parse(localStorage.getItem('all_exam_questions') || '[]');
+    
+    // Calculate new exam ID
+    const maxId = existingExams.length > 0 
+      ? Math.max(...existingExams.map(e => e.id), ...exams.map(e => e.id))
+      : Math.max(...exams.map(e => e.id), 0);
+    
+    // Format dates as ISO strings for consistency with mockData
+    const formattedStartDate = new Date(formData.start_date).toISOString();
+    const formattedCloseDate = new Date(formData.close_date).toISOString();
+    
     const newExam = {
-      id: exams.length + 1,
+      id: maxId + 1,
       course_id: parseInt(course_id),
       ...formData,
+      start_date: formattedStartDate,
+      close_date: formattedCloseDate,
       eligible_student_ids: eligibleStudentIds,
       created_by: 4,
       created_at: new Date().toISOString().split('T')[0],
     };
     
-    console.log('Creating exam:', newExam);
-    console.log('Exam questions:', examQuestions);
-    console.log('Eligible students:', eligibleStudentIds);
+    // Add exam_id and unique id to examQuestions
+    const existingExamQuestionIds = existingExamQuestions.length > 0
+      ? Math.max(...existingExamQuestions.map(eq => eq.id || 0))
+      : Math.max(...examQuestions.map(eq => eq.id || 0), 0);
     
-    navigate(`/team6/courses/${course_id}/exams`);
+    const newExamQuestions = examQuestions.map((eq, idx) => ({
+      id: existingExamQuestionIds + idx + 1,
+      exam_id: newExam.id,
+      question_id: eq.question_id,
+      point: eq.point,
+      order: eq.order || idx + 1,
+    }));
+    
+    // Prepare data for saving
+    const updatedExams = [...existingExams, newExam];
+    const updatedExamQuestions = [...existingExamQuestions, ...newExamQuestions];
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem('all_exams', JSON.stringify(updatedExams));
+      localStorage.setItem('all_exam_questions', JSON.stringify(updatedExamQuestions));
+      
+      console.log('Exam saved successfully:', newExam);
+      console.log('Exam ID:', newExam.id);
+      console.log('Course ID:', newExam.course_id, '(type:', typeof newExam.course_id, ')');
+      console.log('Exam questions saved:', newExamQuestions.length, 'questions');
+      console.log('Eligible students:', eligibleStudentIds.length, 'students');
+      console.log('All exams in localStorage:', updatedExams.length);
+      
+      alert(`Шалгалт амжилттай үүсгэгдлээ!\n\nШалгалт: ${newExam.name}\nАсуултын тоо: ${newExamQuestions.length}\nНийт оноо: ${newExamQuestions.reduce((sum, q) => sum + q.point, 0)}`);
+      navigate(`/team6/courses/${course_id}/exams`);
+    } catch (error) {
+      console.error('Error saving exam:', error);
+      alert('Шалгалт хадгалахад алдаа гарлаа. Дахин оролдоно уу.');
+    }
   };
 
   // Calculate totals
