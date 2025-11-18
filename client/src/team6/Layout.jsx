@@ -17,7 +17,7 @@ const Team6Layout = () => {
   const handleRoleChange = () => {
     clearSelectedRole();
     setRole(null);
-    navigate('/team6/select-role');
+    navigate('/team6');
   };
 
   return (
@@ -32,7 +32,7 @@ const Team6Layout = () => {
             <Link
               to='/team6'
               className={`${
-                isActive('/team6') && !isActive('/team6/courses') && !isActive('/team6/exams') && !isActive('/team6/select-role')
+                isActive('/team6') && !isActive('/team6/courses') && !isActive('/team6/exams') && !isActive('/team6')
                   ? 'underline font-semibold'
                   : ''
               } hover:underline`}>

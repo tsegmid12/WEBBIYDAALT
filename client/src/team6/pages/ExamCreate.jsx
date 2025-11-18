@@ -746,7 +746,7 @@ const ExamCreate = () => {
                       className='w-full px-4 py-2 border border-gray-300 rounded-lg'
                     />
                   </div>
-                  <div>
+                  {/* <div>
                     <label className='block text-sm font-medium text-gray-700 mb-2'>Нэг асуултын оноо *</label>
                     <input
                       type='number'
@@ -756,7 +756,7 @@ const ExamCreate = () => {
                       onChange={e => setCurrentRule({ ...currentRule, point: parseInt(e.target.value) || 5 })}
                       className='w-full px-4 py-2 border border-gray-300 rounded-lg'
                     />
-                  </div>
+                  </div> */}
                 </div>
                 {(() => {
                   const available = questionBank.filter(q => {

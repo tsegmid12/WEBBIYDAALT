@@ -34,7 +34,7 @@ const Home = () => {
       <div className="text-center py-12">
         <p className="text-gray-600 text-lg">Эрх сонгох шаардлагатай</p>
         <Link
-          to="/team6/select-role"
+          to="/team6"
           className="text-blue-600 hover:underline mt-2 inline-block"
         >
           Эрх сонгох хуудас руу очих
@@ -376,7 +376,7 @@ const Home = () => {
                       return (
                         <Link
                           key={exam.id}
-                          to={`/team6/exams/${exam.id}/students/${studentId}`}
+                          to={`/team6/exams/${exam.id}/students/${studentId}/edit`}
                           className="bg-white rounded-lg p-5 border-2 border-green-400 hover:border-green-500 hover:shadow-md transition-all"
                         >
                           <div className="flex items-center justify-between">

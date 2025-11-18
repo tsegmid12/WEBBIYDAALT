@@ -50,7 +50,7 @@ const ExamStart = () => {
     return (
       <div className='text-center py-12'>
         <p className='text-gray-600 text-lg'>Шалгалт олдсонгүй</p>
-        <Link to='/team6' className='text-blue-600 hover:underline mt-2 inline-block'>
+        <Link to='/team6/exam' className='text-blue-600 hover:underline mt-2 inline-block'>
           Нүүр хуудас руу буцах
         </Link>
       </div>

@@ -8,7 +8,7 @@ const mockVariants = [
     id: 1,
     exam_id: 1,
     name: 'Хувилбар A',
-    description: 'Эхний хувилбар',
+    description: 'Эхний хувилбар',  
     question_ids: [1, 2, 3],
     created_at: '2025-02-01',
   },

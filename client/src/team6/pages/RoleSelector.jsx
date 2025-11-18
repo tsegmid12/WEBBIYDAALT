@@ -11,14 +11,14 @@ const RoleSelector = () => {
     const savedRole = localStorage.getItem('team6_selected_role');
     if (savedRole) {
       setSelectedRole(savedRole);
-      navigate('/team6');
+      navigate('/team6/exams');
     }
   }, [navigate]);
 
   const handleRoleSelect = (role) => {
     localStorage.setItem('team6_selected_role', role);
     setSelectedRole(role);
-    navigate('/team6');
+    navigate('/team6/exams');
   };
 
   return (
