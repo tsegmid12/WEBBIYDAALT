@@ -22,12 +22,13 @@ import ExamStart from "./pages/ExamStart";
 import ExamTake from "./pages/ExamTake";
 import ExamCheck from "./pages/ExamCheck";
 import ExamResult from "./pages/ExamResult";
+import { setSelectedRole } from "./utils/role";
 
 const Index = () => {
   return (
     <Routes>
       {/* Role selector - /team6 */}
-      <Route path="/" element={<RoleSelector />} />
+      <Route path="/" element={<RoleSelector addRole={setSelectedRole}/>} />
 
       {/* Main routes with Layout */}
       <Route element={<Team6Layout />}>
