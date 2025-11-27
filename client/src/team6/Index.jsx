@@ -63,7 +63,7 @@ const Index = () => {
         />
         {/* /team6/exams/:exam_id/edit */}
         <Route
-          path="/exams/:exam_id/edit"
+          path="courses/:course_id/exams/:exam_id/edit"
           element={
             <ProtectedRoute requiredRole="teacher">
               <ExamEdit />

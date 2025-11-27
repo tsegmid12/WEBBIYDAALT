@@ -1,4 +1,5 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { exams, examQuestions, questionBank, courses, studentSubmissions, users } from '../data/mockData';
 import {
   Calendar,
@@ -15,45 +16,53 @@ import {
 const ExamDetail = () => {
   const { exam_id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [examData, setExamData] = useState(null);
+  const [questionsData, setQuestionsData] = useState([]);
   
   // Load exams from both mockData and localStorage
-  const localStorageExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
-  const allExams = [...exams];
-  localStorageExams.forEach(lsExam => {
-    const existingIndex = allExams.findIndex(e => e.id === lsExam.id);
-    if (existingIndex >= 0) {
-      allExams[existingIndex] = lsExam;
-    } else {
-      allExams.push(lsExam);
-    }
-  });
+  useEffect(() => {
+    const localStorageExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
+    const allExams = [...exams];
+    localStorageExams.forEach(lsExam => {
+      const existingIndex = allExams.findIndex(e => e.id === lsExam.id);
+      if (existingIndex >= 0) {
+        allExams[existingIndex] = lsExam;
+      } else {
+        allExams.push(lsExam);
+      }
+    });
+    
+    const foundExam = allExams.find(e => e.id === parseInt(exam_id));
+    setExamData(foundExam);
+    
+    // Load exam questions from both mockData and localStorage
+    const localStorageExamQuestions = JSON.parse(localStorage.getItem('all_exam_questions') || '[]');
+    const allExamQuestions = [...examQuestions];
+    localStorageExamQuestions.forEach(lsEq => {
+      const existingIndex = allExamQuestions.findIndex(eq => eq.exam_id === lsEq.exam_id && eq.question_id === lsEq.question_id);
+      if (existingIndex >= 0) {
+        allExamQuestions[existingIndex] = lsEq;
+      } else {
+        allExamQuestions.push(lsEq);
+      }
+    });
+    
+    const examQs = allExamQuestions
+      .filter(eq => eq.exam_id === parseInt(exam_id))
+      .map(eq => ({
+        ...eq,
+        question: questionBank.find(q => q.id === eq.question_id),
+      }));
+    setQuestionsData(examQs);
+  }, [exam_id]);
   
-  const exam = allExams.find(e => e.id === parseInt(exam_id));
-  const course = exam
-    ? courses.find(c => c.id === exam.course_id)
-    : null;
-  
-  // Load exam questions from both mockData and localStorage
-  const localStorageExamQuestions = JSON.parse(localStorage.getItem('all_exam_questions') || '[]');
-  const allExamQuestions = [...examQuestions];
-  localStorageExamQuestions.forEach(lsEq => {
-    const existingIndex = allExamQuestions.findIndex(eq => eq.exam_id === lsEq.exam_id && eq.question_id === lsEq.question_id);
-    if (existingIndex >= 0) {
-      allExamQuestions[existingIndex] = lsEq;
-    } else {
-      allExamQuestions.push(lsEq);
-    }
-  });
-  
-  const questions = allExamQuestions
-    .filter(eq => eq.exam_id === parseInt(exam_id))
-    .map(eq => ({
-      ...eq,
-      question: questionBank.find(q => q.id === eq.question_id),
-    }));
+  const exam = examData;
+  const course = exam ? courses.find(c => c.id === exam.course_id) : null;
+  const questions = questionsData;
 
   // Check if exam has been taken
-  const hasSubmissions = studentSubmissions.some(s => s.exam_id === parseInt(exam_id));
+  const hasSubmissions = exam ? studentSubmissions.some(s => s.exam_id === parseInt(exam_id)) : false;
   const submissions = studentSubmissions.filter(s => s.exam_id === parseInt(exam_id));
   
   // Get eligible students
@@ -97,7 +106,11 @@ const ExamDetail = () => {
         <div className='flex gap-2'>
           {!hasSubmissions && (
             <button
-              onClick={() => navigate(`/team6/exams/${exam_id}/edit`)}
+              onClick={() =>
+                navigate(`/team6/courses/${exam.course_id}/exams/${exam_id}/edit`, {
+                  state: { returnTo: location.pathname },
+                })
+              }
               className='bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2'>
               <Edit size={20} />
               Засах

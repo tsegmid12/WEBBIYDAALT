@@ -1,38 +1,46 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { exams, examQuestions, questionBank, questionTypes, categories, levels, studentSubmissions } from '../data/mockData';
 import { ArrowLeft, Save, Plus, X, Filter, AlertCircle } from 'lucide-react';
 
 const ExamEdit = () => {
-  const { exam_id } = useParams();
+  const { course_id, exam_id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   
-  // Load exams from both mockData and localStorage
-  const localStorageExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
-  const allExams = [...exams];
-  localStorageExams.forEach(lsExam => {
-    const existingIndex = allExams.findIndex(e => e.id === lsExam.id);
-    if (existingIndex >= 0) {
-      allExams[existingIndex] = lsExam;
-    } else {
-      allExams.push(lsExam);
-    }
-  });
+  // Get all exams
+  const getAllExams = () => {
+    const localStorageExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
+    const allExams = [...exams];
+    localStorageExams.forEach(lsExam => {
+      const existingIndex = allExams.findIndex(e => e.id === lsExam.id);
+      if (existingIndex >= 0) {
+        allExams[existingIndex] = lsExam;
+      } else {
+        allExams.push(lsExam);
+      }
+    });
+    return allExams;
+  };
   
+  // Get all exam questions
+  const getAllExamQuestions = () => {
+    const localStorageExamQuestions = JSON.parse(localStorage.getItem('all_exam_questions') || '[]');
+    const allExamQuestions = [...examQuestions];
+    localStorageExamQuestions.forEach(lsEq => {
+      const existingIndex = allExamQuestions.findIndex(eq => eq.exam_id === lsEq.exam_id && eq.question_id === lsEq.question_id);
+      if (existingIndex >= 0) {
+        allExamQuestions[existingIndex] = lsEq;
+      } else {
+        allExamQuestions.push(lsEq);
+      }
+    });
+    return allExamQuestions;
+  };
+  
+  const allExams = getAllExams();
   const exam = allExams.find(e => e.id === parseInt(exam_id));
-  
-  // Load exam questions from both mockData and localStorage
-  const localStorageExamQuestions = JSON.parse(localStorage.getItem('all_exam_questions') || '[]');
-  const allExamQuestions = [...examQuestions];
-  localStorageExamQuestions.forEach(lsEq => {
-    const existingIndex = allExamQuestions.findIndex(eq => eq.exam_id === lsEq.exam_id && eq.question_id === lsEq.question_id);
-    if (existingIndex >= 0) {
-      allExamQuestions[existingIndex] = lsEq;
-    } else {
-      allExamQuestions.push(lsEq);
-    }
-  });
-  
+  const allExamQuestions = getAllExamQuestions();
   const existingQuestions = allExamQuestions.filter(eq => eq.exam_id === parseInt(exam_id));
   
   // Check if exam has been taken
@@ -72,7 +80,6 @@ const ExamEdit = () => {
         total_score: exam.total_score || 100,
       });
 
-      // Load existing questions
       const questionIds = existingQuestions.map(eq => eq.question_id);
       setSelectedQuestions(questionIds);
       const points = {};
@@ -81,7 +88,7 @@ const ExamEdit = () => {
       });
       setQuestionPoints(points);
     }
-  }, [exam, existingQuestions]);
+  }, [parseInt(exam_id)]);
 
   const handleAddQuestion = (questionId) => {
     if (!selectedQuestions.includes(questionId)) {
@@ -127,6 +134,45 @@ const ExamEdit = () => {
     );
   }
 
+  const safeExamId = exam_id || (exam ? `${exam.id}` : null);
+  const targetCourseId = course_id || exam?.course_id || null;
+  const returnToPath = location.state?.returnTo;
+
+  const navigateToQuestionsList = () => {
+    if (returnToPath) {
+      navigate(returnToPath);
+      return;
+    }
+
+    const finalCourseId = course_id || exam?.course_id;
+    const finalExamId = safeExamId;
+
+    if (finalCourseId && finalExamId) {
+      navigate(`/team6/courses/${finalCourseId}/exams/${finalExamId}`);
+    } else if (finalExamId) {
+      navigate(`/team6/exams/${finalExamId}`);
+    } else {
+      navigate('/team6');
+    }
+  };
+
+
+
+
+  const handleCancel = () => {
+    const confirmCancel = window.confirm('Өөрчлөлтийг цуцалж буцах уу?');
+    if (confirmCancel) {
+      navigateToQuestionsList();
+    }
+  };
+
+  const handleBackClick = () => {
+    const confirmBack = window.confirm('Өөрчлөлтийг цуцалж буцах уу?');
+    if (confirmBack) {
+      navigateToQuestionsList();
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
@@ -135,18 +181,44 @@ const ExamEdit = () => {
       return;
     }
 
-    // In a real app, this would make an API call
-    console.log('Updating exam:', { id: exam_id, ...formData });
-    if (!hasSubmissions) {
-      console.log('Updating exam questions:', selectedQuestions.map((qId, index) => ({
-        exam_id: parseInt(exam_id),
-        question_id: qId,
-        point: questionPoints[qId] || 5,
-        order: index + 1,
-      })));
+    const confirmSave = window.confirm('Өөрчлөлтийг хадгалахдаа итгэлтэй байна уу?');
+    if (!confirmSave) {
+      return;
     }
-    // Navigate back to exam detail
-    navigate(`/team6/exams/${exam_id}`);
+
+    // Get current localStorage data
+    const localStorageExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
+    const localStorageExamQuestions = JSON.parse(localStorage.getItem('all_exam_questions') || '[]');
+
+    // Save exam data to localStorage
+    const updatedExam = {
+      ...exam,
+      ...formData,
+      id: parseInt(safeExamId),
+    };
+    
+    const updatedLocalStorageExams = localStorageExams.filter(e => e.id !== parseInt(safeExamId));
+    updatedLocalStorageExams.push(updatedExam);
+    localStorage.setItem('all_exams', JSON.stringify(updatedLocalStorageExams));
+
+    // Save exam questions to localStorage
+    const updatedExamQuestions = selectedQuestions.map((qId, index) => ({
+      exam_id: parseInt(safeExamId),
+      question_id: qId,
+      point: questionPoints[qId] || 5,
+      order: index + 1,
+    }));
+
+    const updatedLocalStorageExamQuestions = localStorageExamQuestions.filter(
+      eq => eq.exam_id !== parseInt(safeExamId)
+    );
+    updatedLocalStorageExamQuestions.push(...updatedExamQuestions);
+    localStorage.setItem('all_exam_questions', JSON.stringify(updatedLocalStorageExamQuestions));
+
+    console.log('Exam saved:', updatedExam);
+    console.log('Exam questions saved:', updatedExamQuestions);
+    
+    navigateToQuestionsList();
   };
 
   const totalPoints = selectedQuestions.reduce(
@@ -158,7 +230,7 @@ const ExamEdit = () => {
     <div className='space-y-6'>
       <div className='flex items-center gap-4'>
         <button
-          onClick={() => navigate(`/team6/exams/${exam_id}`)}
+          onClick={handleBackClick}
           className='p-2 hover:bg-gray-100 rounded-lg'>
           <ArrowLeft size={20} />
         </button>
@@ -174,7 +246,7 @@ const ExamEdit = () => {
                 Анхаар: Энэ шалгалтыг оюутнууд өгсөн байна
               </p>
               <p className='text-sm text-yellow-700 mt-1'>
-                Асуултуудыг засах боломжгүй. Зөвхөн шалгалтын мэдээлэл (нэр, огноо, тохиргоо) засах боломжтой.
+                Өөрчлөлтүүдийг хадгалахдаа сайн бодоорой.
               </p>
             </div>
           </div>
@@ -355,201 +427,163 @@ const ExamEdit = () => {
           </div>
         </div>
 
-        {/* Question Editing - Only if exam hasn't been taken */}
-        {!hasSubmissions && (
-          <>
-            {/* Selected Questions */}
-            <div className='bg-white rounded-lg shadow p-6'>
-              <div className='flex justify-between items-center mb-4'>
-                <h2 className='text-xl font-semibold text-gray-900'>
-                  Сонгосон асуултууд ({selectedQuestions.length})
-                </h2>
-                {selectedQuestions.length > 0 && (
-                  <div className='text-sm text-gray-600'>
-                    Нийт оноо: <span className='font-semibold text-gray-900'>{totalPoints}</span>
-                  </div>
-                )}
-              </div>
-              {selectedQuestions.length === 0 ? (
-                <p className='text-gray-500 text-center py-8'>
-                  Асуулт сонгоогүй байна. Доорх асуултын сангаас сонгоно уу.
-                </p>
-              ) : (
-                <div className='space-y-3'>
-                  {selectedQuestions.map((qId, index) => {
-                    const question = questionBank.find(q => q.id === qId);
-                    return question ? (
-                      <div
-                        key={qId}
-                        className='flex justify-between items-start p-4 border border-gray-200 rounded-lg bg-gray-50'>
-                        <div className='flex-1'>
-                          <div className='flex items-center gap-3 mb-2'>
-                            <span className='bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium'>
-                              {index + 1}
-                            </span>
-                            <span className='text-sm text-gray-600'>
-                              {questionTypes.find(t => t.value === question.type)?.label || question.type} • {question.category_name} • {question.level_name}
-                            </span>
-                          </div>
-                          <p className='text-sm font-medium text-gray-900 mb-2'>
-                            {question.question}
-                          </p>
-                          <div className='flex items-center gap-2'>
-                            <label className='text-xs text-gray-600'>Оноо:</label>
-                            <input
-                              type='number'
-                              min={1}
-                              value={questionPoints[qId] || question.default_point}
-                              onChange={e => handlePointChange(qId, e.target.value)}
-                              className='w-20 px-2 py-1 border border-gray-300 rounded text-sm'
-                            />
-                          </div>
-                        </div>
-                        <button
-                          type='button'
-                          onClick={() => handleRemoveQuestion(qId)}
-                          className='ml-4 p-2 hover:bg-red-100 rounded'>
-                          <X size={18} className='text-red-600' />
-                        </button>
-                      </div>
-                    ) : null;
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Question Bank with Filters */}
-            <div className='bg-white rounded-lg shadow p-6'>
-              <h2 className='text-xl font-semibold text-gray-900 mb-4'>
-                Асуултын сан
-              </h2>
-
-              {/* Filters */}
-              <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 rounded-lg'>
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    <Filter size={16} className='inline mr-1' />
-                    Асуултын төрөл
-                  </label>
-                  <select
-                    value={filterType}
-                    onChange={e => setFilterType(e.target.value)}
-                    className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm'>
-                    <option value='all'>Бүх төрөл</option>
-                    {questionTypes.map(type => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    Сэдэв
-                  </label>
-                  <select
-                    value={filterCategory}
-                    onChange={e => setFilterCategory(e.target.value)}
-                    className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm'>
-                    <option value='all'>Бүх сэдэв</option>
-                    {categories.map(cat => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    Түвшин
-                  </label>
-                  <select
-                    value={filterLevel}
-                    onChange={e => setFilterLevel(e.target.value)}
-                    className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm'>
-                    <option value='all'>Бүх түвшин</option>
-                    {levels.map(level => (
-                      <option key={level.id} value={level.id}>
-                        {level.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className='space-y-2 max-h-96 overflow-y-auto'>
-                {filteredQuestions
-                  .filter(q => !selectedQuestions.includes(q.id))
-                  .map(question => (
-                    <div
-                      key={question.id}
-                      className='flex justify-between items-start p-3 border border-gray-200 rounded-lg hover:bg-gray-50'>
-                      <div className='flex-1'>
-                        <p className='text-sm font-medium text-gray-900'>
-                          {question.question}
-                        </p>
-                        <p className='text-xs text-gray-500 mt-1'>
-                          {question.category_name} • {questionTypes.find(t => t.value === question.type)?.label || question.type} •{' '}
-                          {question.level_name} • {question.default_point} оноо
-                        </p>
-                      </div>
-                      <button
-                        type='button'
-                        onClick={() => handleAddQuestion(question.id)}
-                        className='ml-4 p-2 bg-blue-600 text-white rounded hover:bg-blue-700'>
-                        <Plus size={16} />
-                      </button>
-                    </div>
-                  ))}
-                {filteredQuestions.filter(q => !selectedQuestions.includes(q.id)).length === 0 && (
-                  <p className='text-gray-500 text-center py-8'>
-                    Асуулт олдсонгүй эсвэл бүгдийг нь сонгосон байна.
-                  </p>
-                )}
-              </div>
-            </div>
-          </>
-        )}
-
-        {hasSubmissions && (
-          <div className='bg-white rounded-lg shadow p-6'>
-            <h2 className='text-xl font-semibold text-gray-900 mb-4'>
-              Одоогийн асуултууд
+        {/* Selected Questions */}
+        <div className='bg-white rounded-lg shadow p-6'>
+          <div className='flex justify-between items-center mb-4'>
+            <h2 className='text-xl font-semibold text-gray-900'>
+              Сонгосон асуултууд ({selectedQuestions.length})
             </h2>
+            {selectedQuestions.length > 0 && (
+              <div className='text-sm text-gray-600'>
+                Нийт оноо: <span className='font-semibold text-gray-900'>{totalPoints}</span>
+              </div>
+            )}
+          </div>
+          {selectedQuestions.length === 0 ? (
+            <p className='text-gray-500 text-center py-8'>
+              Асуулт сонгоогүй байна. Доорх асуултын сангаас сонгоно уу.
+            </p>
+          ) : (
             <div className='space-y-3'>
-              {existingQuestions.map((eq, index) => {
-                const question = questionBank.find(q => q.id === eq.question_id);
+              {selectedQuestions.map((qId, index) => {
+                const question = questionBank.find(q => q.id === qId);
                 return question ? (
                   <div
-                    key={eq.id}
-                    className='flex items-start gap-3 p-3 border border-gray-200 rounded-lg bg-gray-50'>
-                    <span className='bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium'>
-                      {index + 1}
-                    </span>
+                    key={qId}
+                    className='flex justify-between items-start p-4 border border-gray-200 rounded-lg bg-gray-50'>
                     <div className='flex-1'>
-                      <p className='text-sm font-medium text-gray-900'>
+                      <div className='flex items-center gap-3 mb-2'>
+                        <span className='bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium'>
+                          {index + 1}
+                        </span>
+                        <span className='text-sm text-gray-600'>
+                          {questionTypes.find(t => t.value === question.type)?.label || question.type} • {question.category_name} • {question.level_name}
+                        </span>
+                      </div>
+                      <p className='text-sm font-medium text-gray-900 mb-2'>
                         {question.question}
                       </p>
-                      <p className='text-xs text-gray-500 mt-1'>
-                        {questionTypes.find(t => t.value === question.type)?.label || question.type} • {eq.point} оноо
-                      </p>
+                      <div className='flex items-center gap-2'>
+                        <label className='text-xs text-gray-600'>Оноо:</label>
+                        <input
+                          type='number'
+                          min={1}
+                          value={questionPoints[qId] || question.default_point}
+                          onChange={e => handlePointChange(qId, e.target.value)}
+                          className='w-20 px-2 py-1 border border-gray-300 rounded text-sm'
+                        />
+                      </div>
                     </div>
+                    <button
+                      type='button'
+                      onClick={() => handleRemoveQuestion(qId)}
+                      className='ml-4 p-2 hover:bg-red-100 rounded'>
+                      <X size={18} className='text-red-600' />
+                    </button>
                   </div>
                 ) : null;
               })}
             </div>
-            <p className='text-sm text-gray-500 mt-4'>
-              Оюутнууд өгсөн тул асуултуудыг засах боломжгүй.
-            </p>
+          )}
+        </div>
+
+        {/* Question Bank with Filters */}
+        <div className='bg-white rounded-lg shadow p-6'>
+          <h2 className='text-xl font-semibold text-gray-900 mb-4'>
+            Асуултын сан
+          </h2>
+
+          {/* Filters */}
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 rounded-lg'>
+            <div>
+              <label className='block text-sm font-medium text-gray-700 mb-2'>
+                <Filter size={16} className='inline mr-1' />
+                Асуултын төрөл
+              </label>
+              <select
+                value={filterType}
+                onChange={e => setFilterType(e.target.value)}
+                className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm'>
+                <option value='all'>Бүх төрөл</option>
+                {questionTypes.map(type => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className='block text-sm font-medium text-gray-700 mb-2'>
+                Сэдэв
+              </label>
+              <select
+                value={filterCategory}
+                onChange={e => setFilterCategory(e.target.value)}
+                className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm'>
+                <option value='all'>Бүх сэдэв</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className='block text-sm font-medium text-gray-700 mb-2'>
+                Түвшин
+              </label>
+              <select
+                value={filterLevel}
+                onChange={e => setFilterLevel(e.target.value)}
+                className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm'>
+                <option value='all'>Бүх түвшин</option>
+                {levels.map(level => (
+                  <option key={level.id} value={level.id}>
+                    {level.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        )}
+
+          <div className='space-y-2 max-h-96 overflow-y-auto'>
+            {filteredQuestions
+              .filter(q => !selectedQuestions.includes(q.id))
+              .map(question => (
+                <div
+                  key={question.id}
+                  className='flex justify-between items-start p-3 border border-gray-200 rounded-lg hover:bg-gray-50'>
+                  <div className='flex-1'>
+                    <p className='text-sm font-medium text-gray-900'>
+                      {question.question}
+                    </p>
+                    <p className='text-xs text-gray-500 mt-1'>
+                      {question.category_name} • {questionTypes.find(t => t.value === question.type)?.label || question.type} •{' '}
+                      {question.level_name} • {question.default_point} оноо
+                    </p>
+                  </div>
+                  <button
+                    type='button'
+                    onClick={() => handleAddQuestion(question.id)}
+                    className='ml-4 p-2 bg-blue-600 text-white rounded hover:bg-blue-700'>
+                    <Plus size={16} />
+                  </button>
+                </div>
+              ))}
+            {filteredQuestions.filter(q => !selectedQuestions.includes(q.id)).length === 0 && (
+              <p className='text-gray-500 text-center py-8'>
+                Асуулт олдсонгүй эсвэл бүгдийг нь сонгосон байна.
+              </p>
+            )}
+          </div>
+        </div>
 
         <div className='flex justify-end gap-4 pt-4 border-t'>
           <button
             type='button'
-            onClick={() => navigate(`/team6/exams/${exam_id}`)}
+            onClick={handleCancel}
             className='px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50'>
             Цуцлах
           </button>
@@ -566,4 +600,3 @@ const ExamEdit = () => {
 };
 
 export default ExamEdit;
-
