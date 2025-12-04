@@ -1,22 +1,27 @@
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getSelectedRole, clearSelectedRole, isTeacher } from './utils/role';
+import { getSelectedRole, clearSelectedRole, isTeacher, onRoleChange } from './utils/role';
 import { LogOut, User, GraduationCap } from 'lucide-react';
 
 const Team6Layout = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const [role, setRole] = useState(null);
-  const isActive = (path) => location.pathname.includes(path);
 
   useEffect(() => {
-    const selectedRole = getSelectedRole();
-    setRole(selectedRole);
-  }, [location]);
+    // Load initial role
+    const initialRole = getSelectedRole();
+    setRole(initialRole);
+
+    // Subscribe to role changes
+    const unsubscribe = onRoleChange((newRole) => {
+      setRole(newRole);
+    });
+
+    return unsubscribe;
+  }, []);
 
   const handleRoleChange = () => {
     clearSelectedRole();
-    setRole(null);
     navigate('/team6');
   };
 
@@ -31,16 +36,12 @@ const Team6Layout = () => {
           <nav className='hidden md:flex items-center gap-6'>
             <Link
               to='/team6'
-              className={`${
-                isActive('/team6') && !isActive('/team6/courses') && !isActive('/team6/exams') && !isActive('/team6')
-                  ? 'underline font-semibold'
-                  : ''
-              } hover:underline`}>
+              className='hover:underline'>
               Нүүр
             </Link>
           </nav>
 
-          {role && (
+          {role ? (
             <div className='flex items-center gap-4'>
               <div className='flex items-center gap-2'>
                 {isTeacher() ? (
@@ -59,6 +60,12 @@ const Team6Layout = () => {
                 <LogOut size={20} />
               </button>
             </div>
+          ) : (
+            <Link
+              to='/team6/select-role'
+              className='px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-gray-100 transition-colors'>
+              Эрх сонгох
+            </Link>
           )}
         </div>
       </header>
@@ -77,4 +84,3 @@ const Team6Layout = () => {
 };
 
 export default Team6Layout;
-

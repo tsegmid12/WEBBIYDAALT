@@ -1,39 +1,22 @@
-const express = require("express");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-let selectedRole = null;
+let currentRole = null;
 
-
-app.post("/api", express.json(), (req, res) => {
+app.post("/api/select-role", (req, res) => {
   const { role } = req.body;
-
-  if (!role) {
-    return res.status(400).json({ message: "Role is required" });
-  }
-
-  selectedRole = role;
-  res.status(200).json({
-    message: `Role ${role} selected successfully`,
-    selectedRole: selectedRole,
-  });
-
-  console.log(`Role selected: ${selectedRole}`);
+  currentRole = role;
+  res.json({ status: "ok", selectedRole: role });
 });
 
-const allExams = require("../data/mockData.jsx").exams;
-
-
-app.get("/", (req, res) => {
-  res.json({ message: "API is running..." });
+app.get("/api/current-role", (req, res) => {
+  res.json({ selectedRole: currentRole });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-module.exports = app;
+app.listen(3000, () =>
+  console.log("Server running at http://localhost:3000")
+);
