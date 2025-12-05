@@ -2,11 +2,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "../../utils/lmsApi";
 // Import mock data for student section (temporary - for localStorage exam progress tracking)
-import {
-  studentSubmissions,
-  users,
-  examQuestions,
-} from "../data/mockData";
+import { studentSubmissions, users, examQuestions } from "../data/mockData";
 import { getSelectedRole, isTeacher, isStudent } from "../utils/role";
 import {
   BookOpen,
@@ -44,11 +40,8 @@ const Home = () => {
           const userData = await api.users.getCurrentUser();
           authenticatedUser = userData;
           setCurrentUser(userData);
-          console.log('Current user:', userData);
         } catch (err) {
-          console.log('User not logged in or auth failed:', err.message);
-          console.log('💡 To use authenticated APIs, you need to login first or set an auth token.');
-          // Continue without authentication
+          // User not logged in or auth failed - continue without authentication
         }
 
         // Fetch courses based on role
@@ -59,32 +52,26 @@ const Home = () => {
           try {
             // Approach 1: Try to fetch from user's school (requires auth)
             if (authenticatedUser?.school_id) {
-              console.log('Fetching courses from school:', authenticatedUser.school_id);
-              const schoolCoursesData = await api.schools.getSchoolCourses(authenticatedUser.school_id);
+              const schoolCoursesData = await api.schools.getSchoolCourses(
+                authenticatedUser.school_id
+              );
               fetchedCourses = schoolCoursesData.items || [];
-              console.log('School courses:', fetchedCourses);
             }
           } catch (err) {
-            console.log('Failed to fetch school courses:', err.message);
+            // Failed to fetch school courses - continue to next approach
           }
 
           // Approach 2: If no courses yet, try fetching a specific course (may work without auth)
           if (fetchedCourses.length === 0) {
             try {
-              console.log('Trying to fetch course 204 directly...');
               const course204 = await api.courses.getCourse(204);
               fetchedCourses = [course204];
-              console.log('✅ Fetched course 204:', course204);
             } catch (err) {
-              console.log('❌ Failed to fetch course 204:', err.message);
-              if (err.message.includes('Unauthorized')) {
-                console.log('💡 Authentication required. The course exists but requires login to access.');
-              }
+              // Could not fetch course 204
             }
           }
 
           setCourses(fetchedCourses);
-          console.log('Final teacher courses:', fetchedCourses);
 
           // Fetch exams for these courses
           const allExams = [];
@@ -93,48 +80,40 @@ const Home = () => {
               const courseExams = await api.courses.getCourseExams(course.id);
               allExams.push(...(courseExams.items || []));
             } catch (err) {
-              console.log(`Failed to fetch exams for course ${course.id}:`, err.message);
+              // Failed to fetch exams for this course - continue
             }
           }
           setExams(allExams);
-
         } else if (studentRole) {
           // For students, exams endpoint requires authentication
           try {
-            console.log('Fetching student exams (requires authentication)...');
             const myExams = await api.exams.getMyExams();
             setExams(myExams.items || []);
-            console.log('Student exams:', myExams.items);
 
             // Extract unique courses from exams
             const uniqueCourses = [];
             const courseIds = new Set();
-            for (const exam of (myExams.items || [])) {
+            for (const exam of myExams.items || []) {
               if (exam.course_id && !courseIds.has(exam.course_id)) {
                 courseIds.add(exam.course_id);
                 try {
                   const course = await api.courses.getCourse(exam.course_id);
                   uniqueCourses.push(course);
                 } catch (err) {
-                  console.log(`Failed to fetch course ${exam.course_id}:`, err.message);
+                  // Failed to fetch this course - continue
                 }
               }
             }
             setCourses(uniqueCourses);
-            console.log('Student courses:', uniqueCourses);
           } catch (err) {
-            console.log('❌ Failed to fetch student exams:', err.message);
-            if (err.message.includes('Unauthorized')) {
-              console.log('💡 You need to login as a student to see your exams.');
-              setError('Please login to view your exams');
+            if (err.message.includes("Unauthorized")) {
+              setError("Please login to view your exams");
             }
             setExams([]);
           }
         }
-
       } catch (err) {
-        console.error('Error fetching data:', err);
-        setError(err.message || 'Failed to load data');
+        setError(err.message || "Failed to load data");
       } finally {
         setLoading(false);
       }
@@ -240,7 +219,6 @@ const Home = () => {
     );
   }
 
-
   if (studentRole) {
     const studentId = currentUser?.id || 5;
     const now = new Date();
@@ -275,7 +253,12 @@ const Home = () => {
     // Load submissions from both mockData and localStorage
     const localStorageSubmissions = safeJSONParse("studentSubmissions", []);
 
-    const allSubmissions = [...(Array.isArray(studentSubmissions) ? studentSubmissions : []), ...(Array.isArray(localStorageSubmissions) ? localStorageSubmissions : [])];
+    const allSubmissions = [
+      ...(Array.isArray(studentSubmissions) ? studentSubmissions : []),
+      ...(Array.isArray(localStorageSubmissions)
+        ? localStorageSubmissions
+        : []),
+    ];
 
     // Get all exams organized by course
     const examsByCourse = courses
@@ -300,10 +283,10 @@ const Home = () => {
               status: submission
                 ? "completed"
                 : isExpired
-                  ? "expired"
-                  : isActive
-                    ? "active"
-                    : "upcoming",
+                ? "expired"
+                : isActive
+                ? "active"
+                : "upcoming",
               canTake,
               submission,
               attemptsCount: studentAttempts.length,
@@ -321,9 +304,7 @@ const Home = () => {
         (s) => s.exam_id === exam.id && s.student_id === studentId
       );
       const canTake = studentAttempts.length < (exam.max_attempt || 1);
-      return (
-        now >= startDate && now <= closeDate && canTake
-      );
+      return now >= startDate && now <= closeDate && canTake;
     });
 
     const upcomingExams = allExams.filter((exam) => {
@@ -351,7 +332,6 @@ const Home = () => {
       (s) => s.student_id === studentId
     );
 
-
     const resultExams = allSubmissions
       .map((submission) => {
         const exam = allExams.find((e) => e.id === submission.exam_id);
@@ -363,14 +343,13 @@ const Home = () => {
     const isExamInProgress = (exam) => {
       const answersKey = `exam_${exam.id}_student_${studentId}_answers`;
       const savedAnswers = safeJSONParse(answersKey, {});
-      const hasProgress =
-        savedAnswers &&
-        Object.keys(savedAnswers).length > 0;
+      const hasProgress = savedAnswers && Object.keys(savedAnswers).length > 0;
       if (!hasProgress) return false;
 
       const submissionsKey = `exam_submissions_${exam.id}_${studentId}`;
       const savedSubmissions = safeJSONParse(submissionsKey, []);
-      const hasSubmitted = Array.isArray(savedSubmissions) && savedSubmissions.length > 0;
+      const hasSubmitted =
+        Array.isArray(savedSubmissions) && savedSubmissions.length > 0;
 
       return !hasSubmitted;
     };
@@ -470,8 +449,9 @@ const Home = () => {
                                 <div
                                   className="bg-orange-500 h-2 rounded-full transition-all"
                                   style={{
-                                    width: `${(answeredCount / examQuestionsCount) * 100
-                                      }%`,
+                                    width: `${
+                                      (answeredCount / examQuestionsCount) * 100
+                                    }%`,
                                   }}
                                 />
                               </div>
@@ -666,7 +646,9 @@ const Home = () => {
                             </span>
                             <span className="text-gray-600">
                               Огноо:{" "}
-                              {new Date(submission.submit_time).toLocaleDateString("mn-MN")}
+                              {new Date(
+                                submission.submit_time
+                              ).toLocaleDateString("mn-MN")}
                             </span>
                           </div>
                         )}
@@ -742,10 +724,7 @@ const Home = () => {
             </h2>
             <div className="grid gap-4">
               {examsByCourse.map(({ course, exams: courseExams }) => (
-                <div
-                  key={course.id}
-                  className="bg-white rounded-lg shadow p-6"
-                >
+                <div key={course.id} className="bg-white rounded-lg shadow p-6">
                   <div className="flex justify-between items-center mb-4">
                     <div>
                       <h3 className="text-lg font-bold text-gray-900">
@@ -780,8 +759,9 @@ const Home = () => {
                               ? `/team6/exams/${exam.id}/students/${studentId}/result`
                               : `/team6/exams/${exam.id}/students/${studentId}`
                           }
-                          className={`rounded-lg p-4 border-l-4 hover:shadow-md transition-shadow ${statusColors[exam.status] || "border-gray-300"
-                            }`}
+                          className={`rounded-lg p-4 border-l-4 hover:shadow-md transition-shadow ${
+                            statusColors[exam.status] || "border-gray-300"
+                          }`}
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
@@ -804,20 +784,23 @@ const Home = () => {
                                 <div className="mt-2 flex items-center gap-2">
                                   <Award size={14} className="text-blue-600" />
                                   <span className="text-sm font-medium text-blue-900">
-                                    {exam.submission.grade_point?.toFixed(1) || '0.0'}%
+                                    {exam.submission.grade_point?.toFixed(1) ||
+                                      "0.0"}
+                                    %
                                   </span>
                                 </div>
                               )}
                             </div>
                             <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium ${exam.status === "active"
-                                ? "bg-green-100 text-green-800"
-                                : exam.status === "upcoming"
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                exam.status === "active"
+                                  ? "bg-green-100 text-green-800"
+                                  : exam.status === "upcoming"
                                   ? "bg-yellow-100 text-yellow-800"
                                   : exam.status === "completed"
-                                    ? "bg-blue-100 text-blue-800"
-                                    : "bg-gray-100 text-gray-800"
-                                }`}
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-gray-100 text-gray-800"
+                              }`}
                             >
                               {statusLabels[exam.status]}
                             </span>

@@ -1,7 +1,15 @@
-import { useParams, Link } from 'react-router-dom';
-import { Calendar, Clock, FileText, Plus, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import api from '../../utils/lmsApi';
+import { useParams, Link } from "react-router-dom";
+import {
+  Calendar,
+  Clock,
+  FileText,
+  Plus,
+  CheckCircle,
+  AlertCircle,
+  XCircle,
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import api from "../../utils/lmsApi";
 
 const ExamList = () => {
   const { course_id } = useParams();
@@ -9,7 +17,7 @@ const ExamList = () => {
   const [courseExams, setCourseExams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all'); // 'all', 'active', 'upcoming', 'completed'
+  const [filter, setFilter] = useState("all"); // 'all', 'active', 'upcoming', 'completed'
 
   useEffect(() => {
     const fetchExams = async () => {
@@ -27,14 +35,15 @@ const ExamList = () => {
           const examsData = await api.courses.getCourseExams(course_id);
           apiExams = examsData.items || [];
         } catch (err) {
-          console.log('Failed to fetch exams from API:', err);
           apiExams = [];
         }
 
         // Also get exams from localStorage (fallback for locally created exams)
-        const localStorageExams = JSON.parse(localStorage.getItem('all_exams') || '[]');
+        const localStorageExams = JSON.parse(
+          localStorage.getItem("all_exams") || "[]"
+        );
         const localExamsForCourse = localStorageExams.filter(
-          e => e.course_id === parseInt(course_id)
+          (e) => e.course_id === parseInt(course_id)
         );
 
         // Merge API exams with localStorage exams
@@ -42,27 +51,19 @@ const ExamList = () => {
         const examMap = new Map();
 
         // Add localStorage exams first
-        localExamsForCourse.forEach(exam => {
+        localExamsForCourse.forEach((exam) => {
           examMap.set(exam.id, exam);
         });
 
         // Add API exams (will override localStorage if same ID)
-        apiExams.forEach(exam => {
+        apiExams.forEach((exam) => {
           examMap.set(exam.id, exam);
         });
 
         const mergedExams = Array.from(examMap.values());
         setCourseExams(mergedExams); // Changed from setExams to setCourseExams
-
-        console.log('Exams loaded:', {
-          fromAPI: apiExams.length,
-          fromLocalStorage: localExamsForCourse.length,
-          merged: mergedExams.length
-        });
-
       } catch (err) {
-        console.error('Error fetching exams:', err);
-        setError(err.message || 'Failed to load exams');
+        setError(err.message || "Failed to load exams");
       } finally {
         setLoading(false);
       }
@@ -71,7 +72,6 @@ const ExamList = () => {
     fetchExams();
   }, [course_id]);
 
-
   const now = new Date();
 
   const categorizeExams = () => {
@@ -79,7 +79,7 @@ const ExamList = () => {
     const upcoming = [];
     const completed = [];
 
-    courseExams.forEach(exam => {
+    courseExams.forEach((exam) => {
       const startDate = new Date(exam.start_on || exam.start_date);
       const closeDate = new Date(exam.close_on || exam.close_date);
 
@@ -99,11 +99,11 @@ const ExamList = () => {
 
   const getFilteredExams = () => {
     switch (filter) {
-      case 'active':
+      case "active":
         return active;
-      case 'upcoming':
+      case "upcoming":
         return upcoming;
-      case 'completed':
+      case "completed":
         return completed;
       default:
         return courseExams;
@@ -115,9 +115,9 @@ const ExamList = () => {
   // Loading state
   if (loading) {
     return (
-      <div className='text-center py-12'>
-        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto'></div>
-        <p className='text-gray-600 mt-4'>Шалгалтууд уншиж байна...</p>
+      <div className="text-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="text-gray-600 mt-4">Шалгалтууд уншиж байна...</p>
       </div>
     );
   }
@@ -125,13 +125,13 @@ const ExamList = () => {
   // Error state
   if (error) {
     return (
-      <div className='bg-red-50 border border-red-200 rounded-lg p-6 text-center'>
-        <AlertCircle size={48} className='mx-auto text-red-500 mb-4' />
-        <p className='text-red-800 text-lg font-medium'>Алдаа гарлаа</p>
-        <p className='text-red-600 mt-2'>{error}</p>
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <AlertCircle size={48} className="mx-auto text-red-500 mb-4" />
+        <p className="text-red-800 text-lg font-medium">Алдаа гарлаа</p>
+        <p className="text-red-600 mt-2">{error}</p>
         <button
           onClick={() => window.location.reload()}
-          className='mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700'
+          className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
         >
           Дахин оролдох
         </button>
@@ -140,59 +140,68 @@ const ExamList = () => {
   }
 
   return (
-    <div className='space-y-6'>
-      <div className='flex justify-between items-center'>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className='text-3xl font-bold text-gray-900'>
-            {course?.name || 'Хичээлийн'} Шалгалтууд
+          <h1 className="text-3xl font-bold text-gray-900">
+            {course?.name || "Хичээлийн"} Шалгалтууд
           </h1>
-          <p className='text-gray-600 mt-2'>
+          <p className="text-gray-600 mt-2">
             Нийт {courseExams.length} шалгалт байна
           </p>
         </div>
         <Link
           to={`/team6/courses/${course_id}/exams/create`}
-          className='bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2'>
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+        >
           <Plus size={20} />
           Шинэ шалгалт
         </Link>
       </div>
 
       {/* Filter Tabs */}
-      <div className='bg-white rounded-lg shadow p-4'>
-        <div className='flex gap-2 flex-wrap'>
+      <div className="bg-white rounded-lg shadow p-4">
+        <div className="flex gap-2 flex-wrap">
           <button
-            onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${filter === 'all'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}>
+            onClick={() => setFilter("all")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              filter === "all"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
             Бүгд ({courseExams.length})
           </button>
           <button
-            onClick={() => setFilter('upcoming')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${filter === 'upcoming'
-              ? 'bg-yellow-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}>
+            onClick={() => setFilter("upcoming")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+              filter === "upcoming"
+                ? "bg-yellow-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
             <AlertCircle size={16} />
             Ирээдүйд ({upcoming.length})
           </button>
           <button
-            onClick={() => setFilter('active')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${filter === 'active'
-              ? 'bg-green-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}>
+            onClick={() => setFilter("active")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+              filter === "active"
+                ? "bg-green-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
             <CheckCircle size={16} />
             Идэвхтэй ({active.length})
           </button>
           <button
-            onClick={() => setFilter('completed')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${filter === 'completed'
-              ? 'bg-gray-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}>
+            onClick={() => setFilter("completed")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+              filter === "completed"
+                ? "bg-gray-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
             <XCircle size={16} />
             Дууссан ({completed.length})
           </button>
@@ -200,30 +209,33 @@ const ExamList = () => {
       </div>
 
       {filteredExams.length === 0 ? (
-        <div className='text-center py-12 bg-white rounded-lg shadow'>
-          <FileText size={48} className='mx-auto text-gray-400 mb-4' />
-          <p className='text-gray-600 text-lg'>
-            {filter === 'all'
-              ? 'Шалгалт байхгүй байна'
-              : filter === 'active'
-                ? 'Идэвхтэй шалгалт байхгүй'
-                : filter === 'upcoming'
-                  ? 'Ирээдүйн шалгалт байхгүй'
-                  : 'Дууссан шалгалт байхгүй'}
+        <div className="text-center py-12 bg-white rounded-lg shadow">
+          <FileText size={48} className="mx-auto text-gray-400 mb-4" />
+          <p className="text-gray-600 text-lg">
+            {filter === "all"
+              ? "Шалгалт байхгүй байна"
+              : filter === "active"
+              ? "Идэвхтэй шалгалт байхгүй"
+              : filter === "upcoming"
+              ? "Ирээдүйн шалгалт байхгүй"
+              : "Дууссан шалгалт байхгүй"}
           </p>
-          {filter !== 'all' && (
+          {filter !== "all" && (
             <button
-              onClick={() => setFilter('all')}
-              className='text-blue-600 hover:underline mt-2 inline-block'>
+              onClick={() => setFilter("all")}
+              className="text-blue-600 hover:underline mt-2 inline-block"
+            >
               Бүх шалгалт харах
             </button>
           )}
         </div>
       ) : (
-        <div className='grid gap-4'>
-          {filteredExams.map(exam => {
+        <div className="grid gap-4">
+          {filteredExams.map((exam) => {
             const startDate = new Date(exam.start_on || exam.start_date);
-            const closeDate = new Date(exam.close_on || exam.close_date || exam.end_on);
+            const closeDate = new Date(
+              exam.close_on || exam.close_date || exam.end_on
+            );
             const isUpcoming = now < startDate;
             const isActive = now >= startDate && now <= closeDate;
             const isCompleted = now > closeDate;
@@ -232,44 +244,47 @@ const ExamList = () => {
               <Link
                 key={exam.id}
                 to={`/team6/exams/${exam.id}`}
-                className='bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow'>
-                <div className='flex justify-between items-start'>
-                  <div className='flex-1'>
-                    <div className='flex items-center gap-3 mb-2'>
-                      <h3 className='text-xl font-semibold text-gray-900'>
+                className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-xl font-semibold text-gray-900">
                         {exam.name}
                       </h3>
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${isUpcoming
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                          }`}>
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          isUpcoming
+                            ? "bg-yellow-100 text-yellow-800"
+                            : isActive
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
                         {isUpcoming
-                          ? 'Ирээдүйд'
+                          ? "Ирээдүйд"
                           : isActive
-                            ? 'Идэвхтэй'
-                            : 'Дууссан'}
+                          ? "Идэвхтэй"
+                          : "Дууссан"}
                       </span>
                     </div>
-                    <p className='text-gray-600 mb-4'>{exam.description}</p>
-                    <div className='flex flex-wrap gap-4 text-sm text-gray-500'>
-                      <div className='flex items-center gap-2'>
+                    <p className="text-gray-600 mb-4">{exam.description}</p>
+                    <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-2">
                         <Calendar size={16} />
                         <span>
-                          {startDate.toLocaleDateString('mn-MN')} -{' '}
-                          {closeDate.toLocaleDateString('mn-MN')}
+                          {startDate.toLocaleDateString("mn-MN")} -{" "}
+                          {closeDate.toLocaleDateString("mn-MN")}
                         </span>
                       </div>
-                      <div className='flex items-center gap-2'>
+                      <div className="flex items-center gap-2">
                         <Clock size={16} />
                         <span>{exam.duration} минут</span>
                       </div>
                       <span>
                         {exam.max_attempt === 1
-                          ? '1 удаа'
-                          : `${exam.max_attempt} удаа`}{' '}
+                          ? "1 удаа"
+                          : `${exam.max_attempt} удаа`}{" "}
                         өгч болно
                       </span>
                       <span>

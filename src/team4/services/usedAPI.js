@@ -1,8 +1,8 @@
-import { School } from 'lucide-react';
+import { School } from "lucide-react";
 
-const BASE_URL = 'https://todu.mn/bs/lms/v1';
+const BASE_URL = "https://todu.mn/bs/lms/v1";
 
-const handleResponse = async response => {
+const handleResponse = async (response) => {
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
@@ -12,16 +12,16 @@ const handleResponse = async response => {
 
 const fetchWithAuth = async (url, options = {}) => {
   const token =
-    localStorage.getItem('access_token') || localStorage.getItem('authToken');
-  console.log('myToken:', token);
+    localStorage.getItem("access_token") || localStorage.getItem("authToken");
+  console.log("myToken:", token);
   const headers = {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
     ...options.headers,
   };
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   const response = await fetch(url, {
@@ -35,29 +35,29 @@ const fetchWithAuth = async (url, options = {}) => {
 export const authAPI = {
   login: async (email, password) => {
     const response = await fetch(`${BASE_URL}/token/email`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password }),
     });
     const data = await handleResponse(response);
     // Token хадгалах
     if (data.access_token) {
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('authToken', data.access_token);
+      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("authToken", data.access_token);
     }
     if (data.refresh_token) {
-      localStorage.setItem('refreshToken', data.refresh_token);
+      localStorage.setItem("refreshToken", data.refresh_token);
     }
     return data;
   },
 
   // Logout
   logout: async () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refreshToken");
     return { success: true };
   },
 
@@ -69,11 +69,11 @@ export const authAPI = {
   // Change password
   changePassword: async (password, new_password) => {
     return fetchWithAuth(`${BASE_URL}/users/me/password`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify({
         password,
         new_password,
-        current_user: 'me',
+        current_user: "me",
       }),
     });
   },
@@ -85,12 +85,12 @@ export const studentAPI = {
   },
 
   // Update profile
-  updateProfile: async profileData => {
+  updateProfile: async (profileData) => {
     return fetchWithAuth(`${BASE_URL}/users/me`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify({
         ...profileData,
-        current_user: 'me',
+        current_user: "me",
       }),
     });
   },
@@ -101,16 +101,18 @@ export const favoriteAPI = {
   // Get favorite courses
   getFavoriteCourses: async () => {
     const favoriteIds = JSON.parse(
-      localStorage.getItem('favoriteCourses') || '[]'
+      localStorage.getItem("favoriteCourses") || "[]"
     );
 
     const res = await courseAPI.getMyCourses();
-    console.log('getMyCourses result:', res);
+    console.log("getMyCourses result:", res);
 
     // res нь JSON object тул .json() хэрэггүй
     const allCourses = res.items || res.courses || res || [];
 
-    const favoriteCourses = allCourses.filter(c => favoriteIds.includes(c.id));
+    const favoriteCourses = allCourses.filter((c) =>
+      favoriteIds.includes(c.id)
+    );
 
     return { items: favoriteCourses };
   },
@@ -118,7 +120,7 @@ export const favoriteAPI = {
   // Get favorite teachers
   getFavoriteTeachers: async () => {
     const favorites = JSON.parse(
-      localStorage.getItem('favoriteTeachers') || '[]'
+      localStorage.getItem("favoriteTeachers") || "[]"
     );
     return { items: favorites };
   },
@@ -126,7 +128,7 @@ export const favoriteAPI = {
   // Get favorite groups
   getFavoriteGroups: async () => {
     const favorites = JSON.parse(
-      localStorage.getItem('favoriteGroups') || '[]'
+      localStorage.getItem("favoriteGroups") || "[]"
     );
     return { items: favorites };
   },
@@ -134,7 +136,7 @@ export const favoriteAPI = {
   // Add to favorites
   addFavorite: async (type, id) => {
     const key = `favorite${type.charAt(0).toUpperCase() + type.slice(1)}s`;
-    const favorites = JSON.parse(localStorage.getItem(key) || '[]');
+    const favorites = JSON.parse(localStorage.getItem(key) || "[]");
     if (!favorites.includes(id)) {
       favorites.push(id);
       localStorage.setItem(key, JSON.stringify(favorites));
@@ -145,8 +147,8 @@ export const favoriteAPI = {
   // Remove from favorites
   removeFavorite: async (type, id) => {
     const key = `favorite${type.charAt(0).toUpperCase() + type.slice(1)}s`;
-    const favorites = JSON.parse(localStorage.getItem(key) || '[]');
-    const filtered = favorites.filter(fav => fav !== id);
+    const favorites = JSON.parse(localStorage.getItem(key) || "[]");
+    const filtered = favorites.filter((fav) => fav !== id);
     localStorage.setItem(key, JSON.stringify(filtered));
     return { success: true };
   },
@@ -154,10 +156,10 @@ export const favoriteAPI = {
   // Toggle favorite
   toggleFavorite: async (type, id) => {
     const key = `favorite${type.charAt(0).toUpperCase() + type.slice(1)}s`;
-    const favorites = JSON.parse(localStorage.getItem(key) || '[]');
+    const favorites = JSON.parse(localStorage.getItem(key) || "[]");
 
     if (favorites.includes(id)) {
-      const filtered = favorites.filter(fav => fav !== id);
+      const filtered = favorites.filter((fav) => fav !== id);
       localStorage.setItem(key, JSON.stringify(filtered));
       return { success: true, added: false };
     } else {
@@ -170,7 +172,7 @@ export const favoriteAPI = {
   // Check if item is favorite
   isFavorite: (type, id) => {
     const key = `favorite${type.charAt(0).toUpperCase() + type.slice(1)}s`;
-    const favorites = JSON.parse(localStorage.getItem(key) || '[]');
+    const favorites = JSON.parse(localStorage.getItem(key) || "[]");
     return favorites.includes(id);
   },
 };
@@ -181,10 +183,8 @@ export const teacherAPI = {
     const me = await authAPI.getCurrentUser(); // ✔ JSON
     const schools = await userAPI.getUserSchools(me.id); // ✔ JSON
 
-    console.log('schools', schools);
-
     if (!schools.items || schools.items.length === 0) {
-      throw new Error('User has no schools');
+      throw new Error("User has no schools");
     }
 
     const school_id = schools.items[0].id;
@@ -195,9 +195,7 @@ export const teacherAPI = {
 
     const data = response.items ? response.items : [];
 
-    console.log('teachersss', data);
-
-    return data.filter(user => user.role_id === 20 || user.role_id !== 4);
+    return data.filter((user) => user.role_id === 20);
   },
 
   // Get teacher by ID``
@@ -222,7 +220,8 @@ export const teacherAPI = {
         if (
           users.items &&
           users.items.some(
-            u => u.user_id === teacherId && (u.role_id === 3 || u.role_id === 4)
+            (u) =>
+              u.user_id === teacherId && (u.role_id === 3 || u.role_id === 4)
           )
         ) {
           teacherCourses.push(course);
@@ -245,10 +244,10 @@ export const courseAPI = {
     const me = await authAPI.getCurrentUser();
 
     const schools = await userAPI.getUserSchools(me.id);
-    console.log('schools', schools);
+    console.log("schools", schools);
 
     if (!schools.items || schools.items.length === 0) {
-      throw new Error('User has no schools');
+      throw new Error("User has no schools");
     }
 
     const school_id = schools.items[0].id;
@@ -256,86 +255,86 @@ export const courseAPI = {
   },
 
   // Get course by ID
-  getCourseById: async id => {
+  getCourseById: async (id) => {
     return fetchWithAuth(`${BASE_URL}/courses/${id}`);
   },
-  getCoursePoints: async courseId => {
+  getCoursePoints: async (courseId) => {
     console.log(courseId);
     const response = await fetch(`/api/courses/${courseId}/points`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         // Auth headers нэмнэ
       },
     });
-    console.log('onooo', response);
+    console.log("onooo", response);
     if (!response.ok)
       throw new Error(`Failed to fetch points for course ${courseId}`);
     return response.json();
   },
 
   // Get course lessons
-  getCourseLessons: async courseId => {
+  getCourseLessons: async (courseId) => {
     return fetchWithAuth(`${BASE_URL}/courses/${courseId}/lessons`);
   },
 
-  getCourseUsers: async courseId => {
+  getCourseUsers: async (courseId) => {
     return fetchWithAuth(`${BASE_URL}/courses/${courseId}/users`);
   },
 
   // Get course groups
-  getCourseGroups: async courseId => {
+  getCourseGroups: async (courseId) => {
     return fetchWithAuth(`${BASE_URL}/courses/${courseId}/groups`);
   },
 
   // Get course exams
-  getCourseExams: async courseId => {
+  getCourseExams: async (courseId) => {
     return fetchWithAuth(`${BASE_URL}/courses/${courseId}/exams`);
   },
 
   // Get course attendances
-  getCourseAttendances: async courseId => {
+  getCourseAttendances: async (courseId) => {
     return fetchWithAuth(`${BASE_URL}/courses/${courseId}/attendances`);
   },
 
   // Get course questions
-  getCourseQuestions: async courseId => {
+  getCourseQuestions: async (courseId) => {
     return fetchWithAuth(`${BASE_URL}/courses/${courseId}/questions`);
   },
 
   // Update course
   updateCourse: async (courseId, courseData) => {
     return fetchWithAuth(`${BASE_URL}/courses/${courseId}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(courseData),
     });
   },
 
   // Delete course
-  deleteCourse: async courseId => {
+  deleteCourse: async (courseId) => {
     return fetchWithAuth(`${BASE_URL}/courses/${courseId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   },
 };
 export const groupAPI = {
   // Get group by ID
-  getGroupById: async id => {
+  getGroupById: async (id) => {
     return fetchWithAuth(`${BASE_URL}/groups/${id}`);
   },
 
   // Update group
   updateGroup: async (id, groupData) => {
     return fetchWithAuth(`${BASE_URL}/groups/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(groupData),
     });
   },
 
   // Delete group
-  deleteGroup: async id => {
+  deleteGroup: async (id) => {
     return fetchWithAuth(`${BASE_URL}/groups/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   },
 };
@@ -346,14 +345,14 @@ export const progressAPI = {
   },
 
   // Get lesson completion status
-  getLessonCompletion: async courseId => {
+  getLessonCompletion: async (courseId) => {
     return fetchWithAuth(`${BASE_URL}/students/courses/${courseId}/progress`);
   },
 
   // Mark lesson as completed
-  markLessonComplete: async lessonId => {
+  markLessonComplete: async (lessonId) => {
     return fetchWithAuth(`${BASE_URL}/students/lessons/${lessonId}/complete`, {
-      method: 'POST',
+      method: "POST",
     });
   },
 };
@@ -364,29 +363,29 @@ export const schoolAPI = {
   },
 
   // Get school by ID
-  getSchoolById: async id => {
+  getSchoolById: async (id) => {
     return fetchWithAuth(`${BASE_URL}/schools/${id}`);
   },
 
   // Get school categories
-  getSchoolCategories: async school_id => {
+  getSchoolCategories: async (school_id) => {
     return fetchWithAuth(`${BASE_URL}/schools/${school_id}/categories`);
   },
 
   // Get school courses
-  getSchoolCourses: async school_id => {
+  getSchoolCourses: async (school_id) => {
     return fetchWithAuth(`${BASE_URL}/schools/${school_id}/courses`);
   },
 
   // Get school users
-  getSchoolUsers: async school_id => {
+  getSchoolUsers: async (school_id) => {
     return fetchWithAuth(`${BASE_URL}/schools/${school_id}/users`);
   },
 
   // Create school
-  createSchool: async schoolData => {
+  createSchool: async (schoolData) => {
     return fetchWithAuth(`${BASE_URL}/schools`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(schoolData),
     });
   },
@@ -394,24 +393,24 @@ export const schoolAPI = {
   // Update school
   updateSchool: async (school_id, schoolData) => {
     return fetchWithAuth(`${BASE_URL}/schools/${school_id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(schoolData),
     });
   },
 
   // Delete school
-  deleteSchool: async school_id => {
+  deleteSchool: async (school_id) => {
     return fetchWithAuth(`${BASE_URL}/schools/${school_id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   },
 };
 export const userAPI = {
-  getUserSchools: async userId => {
+  getUserSchools: async (userId) => {
     return fetchWithAuth(`${BASE_URL}/users/${userId}/schools`);
   },
 
-  getUserExams: async userId => {
+  getUserExams: async (userId) => {
     return fetchWithAuth(`${BASE_URL}/users/${userId}/exams`);
   },
 
@@ -421,9 +420,9 @@ export const userAPI = {
   },
 
   // Create user
-  createUser: async userData => {
+  createUser: async (userData) => {
     return fetchWithAuth(`${BASE_URL}/users`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(userData),
     });
   },
@@ -431,8 +430,8 @@ export const userAPI = {
   // Delete current user
   deleteMe: async () => {
     return fetchWithAuth(`${BASE_URL}/users/me`, {
-      method: 'DELETE',
-      body: JSON.stringify({ current_user: 'me' }),
+      method: "DELETE",
+      body: JSON.stringify({ current_user: "me" }),
     });
   },
 };
