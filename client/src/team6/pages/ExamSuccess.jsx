@@ -32,7 +32,6 @@ const ExamSuccess = () => {
                     </p>
                     
                 </div>
-
                 {/* Action Buttons */}
                 <div className="space-y-3">
                     <button
