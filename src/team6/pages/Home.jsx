@@ -88,18 +88,29 @@ const Home = () => {
           // For students, exams endpoint requires authentication
           try {
             const myExams = await api.exams.getMyExams();
-            setExams(myExams.items || []);
+            console.log("Student exams from API:", myExams);
+            
+            // Handle both array and object with items property
+            let examsList = [];
+            if (Array.isArray(myExams)) {
+              examsList = myExams;
+            } else if (myExams && myExams.items) {
+              examsList = myExams.items;
+            }
+            
+            setExams(examsList);
 
             // Extract unique courses from exams
             const uniqueCourses = [];
             const courseIds = new Set();
-            for (const exam of myExams.items || []) {
+            for (const exam of examsList) {
               if (exam.course_id && !courseIds.has(exam.course_id)) {
                 courseIds.add(exam.course_id);
                 try {
                   const course = await api.courses.getCourse(exam.course_id);
                   uniqueCourses.push(course);
                 } catch (err) {
+                  console.error(`Failed to fetch course ${exam.course_id}:`, err);
                   // Failed to fetch this course - continue
                 }
               }
@@ -107,7 +118,7 @@ const Home = () => {
             setCourses(uniqueCourses);
           } catch (err) {
             if (err.message.includes("Unauthorized")) {
-              setError("Please login to view your exams");
+              setError("Өгөгдөл татахад алдаа гарлаа");
             }
             setExams([]);
           }
@@ -327,17 +338,24 @@ const Home = () => {
       return now > closeDate && studentAttempts.length === 0;
     });
 
-    // Get submissions from both mockData and localStorage
-    const mySubmissions = studentSubmissions.filter(
+    // Get submissions from both mockData and localStorage for current student
+    const mySubmissions = allSubmissions.filter(
       (s) => s.student_id === studentId
     );
 
-    const resultExams = allSubmissions
+    console.log("Student ID:", studentId);
+    console.log("All exams:", allExams);
+    console.log("All submissions:", allSubmissions);
+    console.log("My submissions:", mySubmissions);
+
+    const resultExams = mySubmissions
       .map((submission) => {
         const exam = allExams.find((e) => e.id === submission.exam_id);
         return exam ? { exam, submission } : null;
       })
       .filter(Boolean);
+    
+    console.log("Result exams:", resultExams);
 
     // Helper function to check if exam is in progress
     const isExamInProgress = (exam) => {
@@ -620,10 +638,7 @@ const Home = () => {
               Үр дүн
             </h2>
             <div className="grid gap-4">
-              {resultExams.map((exam) => {
-                const submission = studentSubmissions.find(
-                  (s) => s.exam_id === exam.id && s.student_id === studentId
-                );
+              {resultExams.map(({ exam, submission }) => {
                 return (
                   <div
                     key={exam.id}

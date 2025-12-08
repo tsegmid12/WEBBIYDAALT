@@ -4,7 +4,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import Home from './pages/Home';
 import RoleSelector from './pages/RoleSelector';
-import Login from './pages/Login';
 
 // Exam Pages
 import ExamList from './pages/ExamList';
@@ -31,7 +30,6 @@ const Index = () => {
   return (
     <ErrorBoundary>
       <Routes>
-        <Route path='login' element={<Login />} />
         <Route path='select-role' element={<RoleSelector />} />
         <Route path='' element={<Team6Layout />}>
           <Route

@@ -31,18 +31,45 @@ const ExamDetail = () => {
         setLoading(true);
         setError(null);
 
-        // Fetch exam details from API
-        const examData = await api.exams.getExam(exam_id);
-        setExam(examData);
+        let examData = null;
+        
+        // Try to fetch exam details from API
+        try {
+          examData = await api.exams.getExam(exam_id);
+          setExam(examData);
+        } catch (apiErr) {
+          // If API fails, try to load from localStorage
+          const localExams = JSON.parse(localStorage.getItem("all_exams") || "[]");
+          examData = localExams.find(e => e.id === parseInt(exam_id));
+          
+          if (!examData) {
+            throw new Error("Шалгалт олдсонгүй. API болон localStorage-аас олдсонгүй.");
+          }
+          setExam(examData);
+        }
 
         // Fetch course info
-        const courseData = await api.courses.getCourse(examData.course_id);
-        setCourse(courseData);
+        if (examData && examData.course_id) {
+          try {
+            const courseData = await api.courses.getCourse(examData.course_id);
+            setCourse(courseData);
+          } catch (courseErr) {
+            // Course fetch failed, but continue
+            setCourse(null);
+          }
+        }
 
         // Fetch exam questions configuration
         try {
           const questionsData = await api.exams.getExamQuestions(exam_id);
-          setQuestions(questionsData.items || []);
+          // Handle both array response and object with items property
+          if (Array.isArray(questionsData)) {
+            setQuestions(questionsData);
+          } else if (questionsData && questionsData.items) {
+            setQuestions(questionsData.items);
+          } else {
+            setQuestions([]);
+          }
         } catch (qErr) {
           setQuestions([]);
         }
@@ -51,7 +78,12 @@ const ExamDetail = () => {
         let apiSubmissions = [];
         try {
           const usersData = await api.exams.getExamUsers(exam_id);
-          apiSubmissions = usersData.items || [];
+          // Handle both array response and object with items property
+          if (Array.isArray(usersData)) {
+            apiSubmissions = usersData;
+          } else if (usersData && usersData.items) {
+            apiSubmissions = usersData.items;
+          }
           setExamUsers(apiSubmissions);
         } catch (uErr) {
           setExamUsers([]);
@@ -94,7 +126,7 @@ const ExamDetail = () => {
           // Failed to load from localStorage - continue with API data only
         }
       } catch (err) {
-        setError(err.message || "Failed to load exam details");
+        setError(err.message || "Шалгалтын мэдээлэл татахад алдаа гарлаа");
       } finally {
         setLoading(false);
       }
@@ -130,12 +162,7 @@ const ExamDetail = () => {
     );
   }
 
-  // Additional calculations
-  const hasSubmissions = examUsers.length > 0;
-  const totalPoints = questions.reduce((sum, q) => sum + (q.quantity || 1), 0);
-  const totalScore = exam?.total_point || exam?.total_score || totalPoints;
-  const courseGradeContribution = exam?.grade_point || 20;
-
+  // Check if exam exists before accessing its properties
   if (!exam) {
     return (
       <div className="text-center py-12">
@@ -149,6 +176,12 @@ const ExamDetail = () => {
       </div>
     );
   }
+
+  // Additional calculations (safe to access exam properties now)
+  const hasSubmissions = examUsers.length > 0;
+  const totalPoints = questions.reduce((sum, q) => sum + (q.point || q.quantity || 1), 0);
+  const totalScore = exam.total_point || exam.total_score || totalPoints;
+  const courseGradeContribution = exam.grade_point || 20;
 
   const now = new Date();
   const startDate = new Date(exam.start_on || exam.open_on || exam.start_date);
@@ -240,7 +273,7 @@ const ExamDetail = () => {
           </div>
           <p className="text-sm text-gray-600">{questions.length} асуулт</p>
           <p className="text-sm text-gray-600">
-            Нийт оноо: {totalPoints} / {totalScore}
+            Нийт оноо: {totalScore}
           </p>
         </div>
       </div>
@@ -255,7 +288,7 @@ const ExamDetail = () => {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-gray-600 mb-1">Нийт оноо</p>
             <p className="text-2xl font-bold text-blue-600">
-              {totalPoints} / {totalScore}
+              {totalScore}
             </p>
             <p className="text-xs text-gray-500 mt-1">
               Хамгийн өндөр оноотой оюутан {totalScore} оноо авна
@@ -322,26 +355,32 @@ const ExamDetail = () => {
           <h2 className="text-xl font-semibold text-gray-900">Асуултууд</h2>
         </div>
         <div className="space-y-4">
-          {questions.map((eq, index) => (
-            <div
-              key={eq.id}
-              className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex items-center gap-3">
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {index + 1}
-                  </span>
-                  <span className="text-sm text-gray-600">
-                    {eq.question?.type || "Unknown"} • {eq.point} оноо
-                  </span>
-                </div>
-              </div>
-              <p className="text-gray-900">
-                {eq.question?.question || "Асуулт олдсонгүй"}
-              </p>
+          {questions.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>Одоогоор асуулт нэмэгдээгүй байна.</p>
             </div>
-          ))}
+          ) : (
+            questions.map((eq, index) => (
+              <div
+                key={eq.id || index}
+                className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center gap-3">
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                      {index + 1}
+                    </span>
+                    <span className="text-sm text-gray-600">
+                      {eq.question?.type || eq.type || "Асуулт"} • {eq.point || eq.default_point || 0} оноо
+                    </span>
+                  </div>
+                </div>
+                <p className="text-gray-900">
+                  {eq.question?.question || eq.question_text || eq.text || "Асуулт олдсонгүй"}
+                </p>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

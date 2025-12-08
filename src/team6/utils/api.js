@@ -37,23 +37,65 @@ const request = async (endpoint, options = {}) => {
       return { success: true };
     }
 
-    const data = await response.json();
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    const isJson = contentType && contentType.includes('application/json');
 
+    // Try to parse JSON response
+    let data = null;
+    if (isJson) {
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error('Хариу JSON биш байна');
+      }
+    } else {
+      // Non-JSON response
+      const text = await response.text();
+      data = { message: text || 'Алдаатай хариу ирлээ' };
+    }
+
+    // Check if request was successful
     if (!response.ok) {
-      throw new Error(data.message || `HTTP Error: ${response.status}`);
+      const errorMessage = data?.message || data?.error || `HTTP Error: ${response.status}`;
+      throw new Error(errorMessage);
     }
 
     return data;
   } catch (error) {
-    console.error('API Request Error:', error);
+    // Re-throw with better error message
+    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+      throw new Error('Сүлжээний алдаа. Интернет холболтоо шалгана уу.');
+    }
     throw error;
   }
 };
 
 const get = (endpoint) => request(endpoint, { method: 'GET' });
-const post = (endpoint, body) => request(endpoint, { method: 'POST', body: JSON.stringify(body) });
-const put = (endpoint, body) => request(endpoint, { method: 'PUT', body: JSON.stringify(body) });
-const del = (endpoint, body) => request(endpoint, { method: 'DELETE', body: body ? JSON.stringify(body) : undefined });
+
+const post = (endpoint, body) => {
+  const options = { method: 'POST' };
+  if (body !== null && body !== undefined) {
+    options.body = JSON.stringify(body);
+  }
+  return request(endpoint, options);
+};
+
+const put = (endpoint, body) => {
+  const options = { method: 'PUT' };
+  if (body !== null && body !== undefined) {
+    options.body = JSON.stringify(body);
+  }
+  return request(endpoint, options);
+};
+
+const del = (endpoint, body) => {
+  const options = { method: 'DELETE' };
+  if (body !== null && body !== undefined) {
+    options.body = JSON.stringify(body);
+  }
+  return request(endpoint, options);
+};
 
 // ========================
 // AUTHENTICATION
