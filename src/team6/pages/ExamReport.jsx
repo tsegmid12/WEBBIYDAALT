@@ -138,13 +138,13 @@ const ExamReport = () => {
 
   const averageScore =
     submissions.length > 0
-      ? submissions.reduce((sum, s) => sum + s.grade_point, 0) /
+      ? submissions.reduce((sum, s) => sum + (Number(s.grade_point) || 0), 0) /
         submissions.length
       : 0;
 
   const highScore =
     submissions.length > 0
-      ? Math.max(...submissions.map((s) => s.grade_point))
+      ? Math.max(...submissions.map((s) => Number(s.grade_point) || 0))
       : 0;
 
   const passedCount = submissions.filter((s) => s.grade_point >= 60).length;
@@ -173,6 +173,10 @@ const ExamReport = () => {
         }
       });
 
+      const percentage =
+        submissions.length > 0
+          ? ((correctCount / submissions.length) * 100).toFixed(1)
+          : "0";
       return {
         question_id: eq.question_id,
         question: question,
@@ -182,10 +186,7 @@ const ExamReport = () => {
         wrongCount,
         notAnsweredCount,
         totalAnswered: correctCount + wrongCount,
-        correctPercentage:
-          submissions.length > 0
-            ? ((correctCount / submissions.length) * 100).toFixed(1)
-            : 0,
+        correctPercentage: percentage,
       };
     })
     .filter((q) => q !== null);
@@ -273,7 +274,7 @@ const ExamReport = () => {
             <h3 className="font-semibold text-gray-900">Дундаж</h3>
           </div>
           <p className="text-2xl font-bold text-gray-900">
-            {averageScore.toFixed(1)}%
+            {(Number(averageScore) || 0).toFixed(1)}%
           </p>
           <p className="text-sm text-gray-600">Оноо</p>
         </div>
@@ -284,7 +285,7 @@ const ExamReport = () => {
             <h3 className="font-semibold text-gray-900">Хамгийн өндөр</h3>
           </div>
           <p className="text-2xl font-bold text-gray-900">
-            {highScore.toFixed(1)}%
+X            {(Number(highScore) || 0).toFixed(1)}%
           </p>
           <p className="text-sm text-gray-600">Оноо</p>
         </div>
@@ -556,17 +557,17 @@ const ExamReport = () => {
                         {submission.total_earned}/{submission.total_possible}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">
-                        {submission.grade_point.toFixed(1)}%
+                        {(Number(submission.grade_point) || 0).toFixed(1)}%
                       </td>
                       <td className="px-4 py-3">
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            submission.grade_point >= 60
+                            (Number(submission.grade_point) || 0) >= 60
                               ? "bg-green-100 text-green-800"
                               : "bg-red-100 text-red-800"
                           }`}
                         >
-                          {submission.grade_point >= 60
+                          {(Number(submission.grade_point) || 0) >= 60
                             ? "Тэнцсэн"
                             : "Тэнцээгүй"}
                         </span>
