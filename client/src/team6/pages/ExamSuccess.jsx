@@ -30,6 +30,7 @@ const ExamSuccess = () => {
                     <p className="text-sm text-yellow-800 font-medium">
                         Таны хичээл шаардлага өндөр байна!
                     </p>
+                    
                 </div>
 
                 {/* Action Buttons */}
