@@ -2,7 +2,7 @@ const BASE_URL = "https://todu.mn/bs/lms/v1";
 
 
 const refreshToken = (refresh_token) =>
-    fetch(`${BASE_URL}/v2/token/refresh`,
+    fetch(`${BASE_URL}/token/refresh`,
         {
             method: 'POST',
             headers: {

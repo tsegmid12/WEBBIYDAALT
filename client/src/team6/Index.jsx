@@ -1,42 +1,39 @@
-import { Routes, Route } from "react-router-dom";
-import Team6Layout from "./Layout";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { RoleProvider } from "./utils/RoleContext";
-
-import Home from "./pages/Home";
-import RoleSelector from "./pages/RoleSelector";
+import { Routes, Route } from 'react-router-dom';
+import Team6Layout from './Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
+import Home from './pages/Home';
+import RoleSelector from './pages/RoleSelector';
 
 // Exam Pages
-import ExamList from "./pages/ExamList";
-import ExamCreate from "./pages/ExamCreate";
-import ExamDetail from "./pages/ExamDetail";
-import ExamEdit from "./pages/ExamEdit";
-import ExamReport from "./pages/ExamReport";
+import ExamList from './pages/ExamList';
+import ExamCreate from './pages/ExamCreate';
+import ExamDetail from './pages/ExamDetail';
+import ExamEdit from './pages/ExamEdit';
+import ExamReport from './pages/ExamReport';
 
-// Variant Pages
-import ExamVariantList from "./pages/ExamVariantList";
-import ExamVariantCreate from "./pages/ExamVariantCreate";
-import ExamVariantDetail from "./pages/ExamVariantDetail";
-import ExamVariantEdit from "./pages/ExamVariantEdit";
+// Exam Variant Pages
+import ExamVariantList from './pages/ExamVariantList';
+import ExamVariantCreate from './pages/ExamVariantCreate';
+import ExamVariantDetail from './pages/ExamVariantDetail';
+import ExamVariantEdit from './pages/ExamVariantEdit';
 
-// Taking Pages
-import ExamStart from "./pages/ExamStart";
-import ExamTake from "./pages/ExamTake";
-import ExamCheck from "./pages/ExamCheck";
-import ExamResult from "./pages/ExamResult";
+// Exam Taking Pages
+import ExamStart from './pages/ExamStart';
+import ExamTake from './pages/ExamTake';
+import ExamCheck from './pages/ExamCheck';
+import ExamResult from './pages/ExamResult';
+import ExamSuccess from './pages/ExamSuccess';
+
 
 const Index = () => {
   return (
-    <RoleProvider>
+    <ErrorBoundary>
       <Routes>
-        {/* Role select - exact match for /team6 */}
-        <Route index element={<RoleSelector />} />
-
-        {/* All other routes wrapped in layout */}
-        <Route element={<Team6Layout />}>
-          {/* HOME */}
+        <Route path='select-role' element={<RoleSelector />} />
+        <Route path='' element={<Team6Layout />}>
           <Route
-            path="exams"
+            index
             element={
               <ProtectedRoute>
                 <Home />
@@ -44,128 +41,126 @@ const Index = () => {
             }
           />
 
-          {/* TEACHER */}
+          {/* Exam Pages */}
           <Route
-            path="courses/:course_id/exams"
+            path='courses/:course_id/exams'
             element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute requiredRole='teacher'>
                 <ExamList />
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="courses/:course_id/exams/create"
+            path='courses/:course_id/exams/create'
             element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute requiredRole='teacher'>
                 <ExamCreate />
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="exams/:exam_id"
+            path='exams/:exam_id'
             element={
               <ProtectedRoute>
                 <ExamDetail />
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="exams/:exam_id/edit"
+            path='exams/:exam_id/edit'
             element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute requiredRole='teacher'>
                 <ExamEdit />
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="exams/:exam_id/report"
+            path='exams/:exam_id/report'
             element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute requiredRole='teacher'>
                 <ExamReport />
               </ProtectedRoute>
             }
           />
 
-          {/* VARIANTS */}
+          {/* Exam Variant Pages */}
           <Route
-            path="exams/:exam_id/variants"
+            path='exams/:exam_id/variants'
             element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute requiredRole='teacher'>
                 <ExamVariantList />
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="exams/:exam_id/variants/create"
+            path='exams/:exam_id/variants/create'
             element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute requiredRole='teacher'>
                 <ExamVariantCreate />
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="exams/:exam_id/variants/:id"
+            path='exams/:exam_id/variants/:id'
             element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute requiredRole='teacher'>
                 <ExamVariantDetail />
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="exams/:exam_id/variants/:id/edit"
+            path='exams/:exam_id/variants/:id/edit'
             element={
-              <ProtectedRoute requiredRole="teacher">
+              <ProtectedRoute requiredRole='teacher'>
                 <ExamVariantEdit />
               </ProtectedRoute>
             }
           />
 
-          {/* STUDENT */}
+          {/* Exam Taking Pages */}
           <Route
-            path="exams/:exam_id/students/:student_id"
+            path='exams/:exam_id/students/:student_id'
             element={
-              <ProtectedRoute requiredRole="student">
+              <ProtectedRoute requiredRole='student'>
                 <ExamStart />
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="exams/:exam_id/students/:student_id/edit"
+            path='exams/:exam_id/students/:student_id/edit'
             element={
-              <ProtectedRoute requiredRole="student">
+              <ProtectedRoute requiredRole='student'>
                 <ExamTake />
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="exams/:exam_id/students/:student_id/check"
+            path='exams/:exam_id/students/:student_id/check'
             element={
-              <ProtectedRoute requiredRole="student">
+              <ProtectedRoute requiredRole='student'>
                 <ExamCheck />
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="exams/:exam_id/students/:student_id/result"
+            path='exams/:exam_id/students/:student_id/result'
             element={
-              <ProtectedRoute requiredRole="student">
+              <ProtectedRoute requiredRole='student'>
                 <ExamResult />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='exams/:exam_id/students/:student_id/success'
+            element={
+              <ProtectedRoute requiredRole='student'>
+                <ExamSuccess />
               </ProtectedRoute>
             }
           />
         </Route>
       </Routes>
-    </RoleProvider>
+    </ErrorBoundary>
   );
 };
 

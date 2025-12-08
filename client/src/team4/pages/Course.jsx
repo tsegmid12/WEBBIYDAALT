@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { courseAPI, favoriteAPI } from '../services/api';
+import { courseAPI, favoriteAPI } from '../services/usedAPI';
 
 export default function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -13,18 +13,38 @@ export default function CoursesPage() {
 
   useEffect(() => {
     fetchCourses();
-    fetchFavorites();
+    loadFavoritesFromStorage();
   }, []);
 
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const data = await courseAPI.getAllCourses();
-      setCourses(data.courses || data);
-      setFilteredCourses(data.courses || data);
+      setError(null);
+      const data = await courseAPI.getMyCourses();
+      console.log('API Response:', data);
+
+      // API-аас items array-г авна
+      const coursesData = data.items || data.courses || data || [];
+
+      // Format courses data to match UI expectations
+      const formattedCourses = coursesData.map(course => ({
+        id: course.id,
+        title: course.name || course.title || 'Хичээлийн нэр',
+        instructor: course.description || course.description || 'Багш',
+        members: course.student_count || course.members || 0,
+        image: course.picture || course.image || '/team4/student/course.png',
+        description: course.description || '',
+        start_on: course.start_on,
+        end_on: course.end_on,
+      }));
+
+      setCourses(formattedCourses);
+      setFilteredCourses(formattedCourses);
     } catch (err) {
       console.error('Error fetching courses:', err);
       setError(err.message);
+
+      // Demo data for fallback
       const demoData = Array(8)
         .fill(null)
         .map((_, index) => ({
@@ -41,15 +61,13 @@ export default function CoursesPage() {
     }
   };
 
-  const fetchFavorites = async () => {
-    // Backend хүсэлт явуулахгүй - зөвхөн UI дээр toggle хийнэ
-    // try {
-    //   const data = await favoriteAPI.getFavoriteCourses();
-    //   const favoriteIds = new Set(data.map(course => course.id));
-    //   setFavorites(favoriteIds);
-    // } catch (err) {
-    //   console.error('Error fetching favorites:', err);
-    // }
+  const loadFavoritesFromStorage = () => {
+    try {
+      const favs = JSON.parse(localStorage.getItem('favoriteCourses') || '[]');
+      setFavorites(new Set(favs));
+    } catch (err) {
+      console.error('Error loading favorites:', err);
+    }
   };
 
   // Handle search
@@ -66,12 +84,11 @@ export default function CoursesPage() {
     }
   }, [searchQuery, courses]);
 
-  // Toggle favorite - зөвхөн UI state өөрчлөх, backend хүсэлт явуулахгүй
+  // Toggle favorite - localStorage-д хадгална
   const handleToggleFavorite = (e, courseId) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // Зөвхөн local state-д toggle хийнэ
     setFavorites(prev => {
       const newFavorites = new Set(prev);
       if (newFavorites.has(courseId)) {
@@ -79,6 +96,15 @@ export default function CoursesPage() {
       } else {
         newFavorites.add(courseId);
       }
+      try {
+        localStorage.setItem(
+          'favoriteCourses',
+          JSON.stringify([...newFavorites])
+        );
+      } catch (err) {
+        console.error('Error saving favorites:', err);
+      }
+
       return newFavorites;
     });
   };
@@ -116,13 +142,19 @@ export default function CoursesPage() {
         </div>
       </div>
       <div className='max-w-7xl mx-auto px-4 sm:px-8 py-6 sm:py-8'>
-        {/* {error && (
+        {error && (
           <div className='bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6'>
-            <p className='text-yellow-700'>
-              Demo өгөгдөл харуулж байгаа.
-            </p>
+            <div className='flex items-start'>
+              <div className='flex-1'>
+                <p className='text-yellow-800 font-medium'>Анхааруулга</p>
+                <p className='text-yellow-700 text-sm mt-1'>
+                  API-тай холбогдоход алдаа гарлаа. Demo өгөгдөл харуулж байна.
+                </p>
+                <p className='text-yellow-600 text-xs mt-1'>Алдаа: {error}</p>
+              </div>
+            </div>
           </div>
-        )} */}
+        )}
 
         <p className='text-gray-600 mb-6'>
           {filteredCourses.length} хичээл олдлоо
@@ -132,6 +164,13 @@ export default function CoursesPage() {
         {filteredCourses.length === 0 ? (
           <div className='text-center py-12'>
             <p className='text-gray-500 text-lg'>Хичээл олдсонгүй</p>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className='mt-4 text-cyan-600 hover:text-cyan-700 underline'>
+                Хайлт арилгах
+              </button>
+            )}
           </div>
         ) : (
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
@@ -145,6 +184,9 @@ export default function CoursesPage() {
                       src={course.image || '/team4/student/course.png'}
                       alt={course.title}
                       className='w-full h-48 object-cover'
+                      onError={e => {
+                        e.target.src = '/team4/student/course.png';
+                      }}
                     />
                     <button
                       onClick={e => handleToggleFavorite(e, course.id)}
@@ -157,15 +199,15 @@ export default function CoursesPage() {
                     </button>
                   </div>
                   <div className='p-4'>
-                    <h3 className='font-semibold text-gray-800 mb-1 group-hover:text-cyan-600 transition-colors'>
-                      {course.title || 'Хичээлийн нэр'}
+                    <h3 className='font-semibold text-gray-800 mb-1 group-hover:text-cyan-600 transition-colors line-clamp-2'>
+                      {course.title}
                     </h3>
-                    <p className='text-sm text-gray-600 mb-1'>
-                      {course.instructor || course.teacher_name || 'Багш'}
-                    </p>
-                    <p className='text-sm text-gray-500'>
-                      Нийт {course.members || course.student_count || 0} Сурагч
-                    </p>
+                    {/* <p className='text-sm text-gray-600 mb-1'>
+                      {course.instructor}
+                    </p> */}
+                    {/* <p className='text-sm text-gray-500'>
+                      Нийт {course.members} Сурагч
+                    </p> */}
                   </div>
                 </div>
               </Link>

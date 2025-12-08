@@ -3,7 +3,8 @@ import { BookOpen, Users, Award, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CourseChart from './courseChart';
 import CustomCalendar from './schedule';
-import { studentAPI } from '../../services/api';
+import { studentAPI, courseAPI } from '../../services/usedAPI';
+import { useSearchParams } from 'react-router-dom';
 
 export default function DashboardContent() {
   const [stats, setStats] = useState([
@@ -43,6 +44,8 @@ export default function DashboardContent() {
   ]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [groupsCount, setGroupsCount] = useState(0);
+  const [averageScore, setAverageScore] = useState(0);
 
   useEffect(() => {
     fetchDashboardStats();
@@ -51,25 +54,79 @@ export default function DashboardContent() {
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
-      const data = await studentAPI.getDashboardStats();
 
-      // Update stats with real data
+      // Хичээлийн мэдээлэл авах
+      const coursesData = await courseAPI.getMyCourses();
+      const coursesArray =
+        coursesData.items || coursesData.courses || coursesData || [];
+
+      // Идэвхитэй хичээл (Үзэж буй хичээл) - бүх хичээлийн тоо
+      const enrolledCoursesCount = coursesArray.length;
+
+      // TODO: API-аас гомдол статусыг авч "Үзсэн хичээлүүд"-ийг тодорхойлох
+      // Одоогоор бүх хичээлийн тоо (дараа нь "completed" статусын хичээлүүдийг авах)
+      const completedCoursesCount = coursesArray.length;
+
+      // Бүх хичээлийн сурагчдаас уникан багуудыг цуглуулах
+      const uniqueGroups = new Set();
+
+      // Бүх хичээлийн дүнг авах
+      let totalPoints = 0;
+
+      for (const course of coursesArray) {
+        try {
+          const courseUsers = await courseAPI.getCourseUsers(course.id);
+          const items = courseUsers.items || [];
+
+          items.forEach(item => {
+            try {
+              const groupData = JSON.parse(item.group);
+              if (groupData && groupData.id) {
+                uniqueGroups.add(groupData.id);
+              }
+            } catch (e) {
+              // JSON parse алдаа, үргэлжлүүлэх
+            }
+          });
+        } catch (e) {
+          console.error(`Error fetching users for course ${course.id}:`, e);
+        }
+
+        // Хичээлийн дүнг авах
+        try {
+          const pointsData = await courseAPI.getCoursePoints(course.id);
+          const points = pointsData.points || pointsData.score || 0;
+          totalPoints += points;
+        } catch (e) {
+          console.error(`Error fetching points for course ${course.id}:`, e);
+        }
+      }
+
+      // Дундаж оноо тооцоолох
+      const avgScore =
+        coursesArray.length > 0
+          ? Math.round((totalPoints / coursesArray.length) * 10) / 10
+          : 0;
+
+      setGroupsCount(uniqueGroups.size);
+      setAverageScore(avgScore);
+
       setStats(prevStats => [
         {
           ...prevStats[0],
-          value: String(data.enrolledCourses || data.current_courses || 0),
+          value: String(enrolledCoursesCount),
         },
         {
           ...prevStats[1],
-          value: String(data.averageScore || data.average_score || 0),
+          value: String(avgScore),
         },
         {
           ...prevStats[2],
-          value: String(data.groups || data.team_count || 0),
+          value: String(uniqueGroups.size),
         },
         {
           ...prevStats[3],
-          value: String(data.completedCourses || data.completed_courses || 0),
+          value: String(completedCoursesCount),
         },
       ]);
     } catch (err) {
@@ -90,14 +147,6 @@ export default function DashboardContent() {
   return (
     <>
       <h2 className='text-2xl font-bold text-gray-800 mb-6'>Dashboard</h2>
-
-      {/* {error && (
-        <div className='bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6'>
-          <p className='text-yellow-700'>
-            Demo өгөгдөл харуулж байгаа.
-          </p>
-        </div>
-      )} */}
 
       {loading ? (
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8'>

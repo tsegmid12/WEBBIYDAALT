@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { favoriteAPI } from '../../services/api';
+import { favoriteAPI } from '../../services/usedAPI';
 
-export default function Courses() {
+export default function FavoriteCourses() {
   const [courses, setCourses] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -14,34 +14,51 @@ export default function Courses() {
   }, []);
 
   const fetchFavoriteCourses = async () => {
-    setLoading(true);
-    const demoData = Array(8)
-      .fill(null)
-      .map((_, index) => ({
-        id: index + 1,
-        title: 'Веб Систем Ба Технологи',
-        instructor: 'Т.Золбоо',
-        members: 42,
-        image: '/team4/student/course.png',
-        isFavorite: true,
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await favoriteAPI.getFavoriteCourses();
+      console.log('Favorite API:', res);
+
+      const items = res.items || res.data || res || [];
+
+      const formatted = items.map(course => ({
+        id: course.id,
+        title: course.name || course.title,
+        instructor: course.teacher_name || course.instructor,
+        members: course.student_count || 0,
+        image: course.picture || '/team4/student/course.png',
       }));
-    setCourses(demoData);
-    setLoading(false);
+
+      setCourses(formatted);
+    } catch (err) {
+      console.error('Favorite error:', err);
+      setError('Таалагдсан хичээл татаж чадсангүй');
+      setCourses([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRemoveFavorite = (e, courseId) => {
+  const removeFavorite = async (e, courseId) => {
     e.preventDefault();
     e.stopPropagation();
-    setCourses(prev => prev.filter(course => course.id !== courseId));
+
+    try {
+      await favoriteAPI.removeFavorite(courseId);
+
+      setCourses(prev => prev.filter(c => c.id !== courseId));
+    } catch (err) {
+      console.error('Remove favorite error:', err);
+    }
   };
 
   const filteredCourses = courses.filter(course => {
-    if (searchQuery.trim() === '') return true;
-
-    const searchLower = searchQuery.toLowerCase();
+    const q = searchQuery.toLowerCase();
     return (
-      course.title?.toLowerCase().includes(searchLower) ||
-      course.instructor?.toLowerCase().includes(searchLower)
+      course.title?.toLowerCase().includes(q) ||
+      course.instructor?.toLowerCase().includes(q)
     );
   });
 
@@ -61,15 +78,6 @@ export default function Courses() {
   return (
     <div className='min-h-[60vh] bg-gray-50'>
       <div className='max-w-7xl mx-auto px-4 sm:px-8 py-6 sm:py-8'>
-        {/* {error && (
-          <div className='bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6'>
-            <p className='text-yellow-700'>
-              Demo өгөгдөл харуулж байгаа.
-            </p>
-          </div>
-        )} */}
-
-        {/* Search bar */}
         <div className='mb-6'>
           <div className='relative max-w-md'>
             <Search
@@ -106,34 +114,39 @@ export default function Courses() {
               {filteredCourses.length} хичээл олдлоо
               {searchQuery && ` "${searchQuery}" хайлтаар`}
             </p>
+
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
-              {filteredCourses.map((course, index) => (
-                <Link
-                  key={course.id || `course-${index}`}
-                  to={`/team4/course/${course.id || index + 1}`}>
+              {filteredCourses.map(course => (
+                <Link key={course.id} to={`/team4/course/${course.id}`}>
                   <div className='bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer group'>
                     <div className='relative overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50'>
                       <img
-                        src={course.image || '/team4/student/course.png'}
+                        src={course.image}
                         alt={course.title}
                         className='w-full h-48 object-cover'
+                        onError={e =>
+                          (e.target.src = '/team4/student/course.png')
+                        }
                       />
                       <button
-                        onClick={e => handleRemoveFavorite(e, course.id)}
+                        onClick={e => removeFavorite(e, course.id)}
                         className='absolute top-3 right-3 bg-white rounded-full p-2 shadow-md hover:bg-gray-50 transition-colors z-10'>
-                        <Heart className='textBlue' size={20} fill='#44B1D2' />
+                        <Heart
+                          size={20}
+                          fill={'#44B1D2'}
+                          className='textBlue'
+                        />
                       </button>
                     </div>
                     <div className='p-4'>
                       <h3 className='font-semibold text-gray-800 mb-1 group-hover:text-cyan-600 transition-colors'>
-                        {course.title || 'Хичээлийн нэр'}
+                        {course.title}
                       </h3>
                       <p className='text-sm text-gray-600 mb-1'>
-                        {course.instructor || course.teacher_name || 'Багш'}
+                        {course.instructor}
                       </p>
                       <p className='text-sm text-gray-500'>
-                        Нийт {course.members || course.student_count || 0}{' '}
-                        Сурагч
+                        Нийт {course.members} Сурагч
                       </p>
                     </div>
                   </div>

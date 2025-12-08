@@ -1,27 +1,38 @@
-import { Link, Outlet, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { getSelectedRole, clearSelectedRole, isTeacher, onRoleChange } from './utils/role';
-import { LogOut, User, GraduationCap } from 'lucide-react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { getSelectedRole, setSelectedRole, isTeacher } from './utils/role';
+import { ChevronDown, User, GraduationCap } from 'lucide-react';
 
 const Team6Layout = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const [role, setRole] = useState(null);
+  const [showRoleMenu, setShowRoleMenu] = useState(false);
+  const menuRef = useRef(null);
+  const isActive = (path) => location.pathname.includes(path);
 
   useEffect(() => {
-    // Load initial role
-    const initialRole = getSelectedRole();
-    setRole(initialRole);
+    const selectedRole = getSelectedRole();
+    setRole(selectedRole);
+  }, [location]);
 
-    // Subscribe to role changes
-    const unsubscribe = onRoleChange((newRole) => {
-      setRole(newRole);
-    });
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowRoleMenu(false);
+      }
+    };
 
-    return unsubscribe;
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleRoleChange = () => {
-    clearSelectedRole();
+  const handleRoleSwitch = (newRole) => {
+    setSelectedRole(newRole);
+    setRole(newRole);
+    setShowRoleMenu(false);
+    // Navigate to home to refresh the page with new role
     navigate('/team6');
   };
 
@@ -36,36 +47,58 @@ const Team6Layout = () => {
           <nav className='hidden md:flex items-center gap-6'>
             <Link
               to='/team6'
-              className='hover:underline'>
+              className={`${
+                isActive('/team6') && !isActive('/team6/courses') && !isActive('/team6/exams') && !isActive('/team6/select-role')
+                  ? 'underline font-semibold'
+                  : ''
+              } hover:underline`}>
               Нүүр
             </Link>
           </nav>
 
-          {role ? (
-            <div className='flex items-center gap-4'>
-              <div className='flex items-center gap-2'>
+          {role && (
+            <div className='relative' ref={menuRef}>
+              <button
+                onClick={() => setShowRoleMenu(!showRoleMenu)}
+                className='flex items-center gap-2 px-4 py-2 hover:bg-blue-700 rounded-lg transition-colors'>
                 {isTeacher() ? (
                   <User size={20} />
                 ) : (
                   <GraduationCap size={20} />
                 )}
-                <span className='text-sm'>
+                <span className='text-sm font-medium'>
                   {isTeacher() ? 'Багш' : 'Оюутан'}
                 </span>
-              </div>
-              <button
-                onClick={handleRoleChange}
-                className='p-2 hover:bg-blue-700 rounded-lg transition-colors'
-                title='Эрх солих'>
-                <LogOut size={20} />
+                <ChevronDown size={16} className={`transition-transform ${showRoleMenu ? 'rotate-180' : ''}`} />
               </button>
+
+              {showRoleMenu && (
+                <div className='absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl overflow-hidden z-50'>
+                  <button
+                    onClick={() => handleRoleSwitch('teacher')}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-blue-50 transition-colors ${
+                      role === 'teacher' ? 'bg-blue-100 text-blue-700' : 'text-gray-700'
+                    }`}>
+                    <User size={20} />
+                    <div>
+                      <div className='font-medium'>Багш</div>
+                      <div className='text-xs text-gray-500'>Шалгалт үүсгэх, засах</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleRoleSwitch('student')}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-green-50 transition-colors ${
+                      role === 'student' ? 'bg-green-100 text-green-700' : 'text-gray-700'
+                    }`}>
+                    <GraduationCap size={20} />
+                    <div>
+                      <div className='font-medium'>Оюутан</div>
+                      <div className='text-xs text-gray-500'>Шалгалт өгөх</div>
+                    </div>
+                  </button>
+                </div>
+              )}
             </div>
-          ) : (
-            <Link
-              to='/team6/select-role'
-              className='px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-gray-100 transition-colors'>
-              Эрх сонгох
-            </Link>
           )}
         </div>
       </header>
@@ -84,3 +117,4 @@ const Team6Layout = () => {
 };
 
 export default Team6Layout;
+

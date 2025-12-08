@@ -1,181 +1,112 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { exams, questionBank } from '../data/mockData';
-import { ArrowLeft, Save, Plus, X } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { exams } from '../data/mockData';
+import { FileText, Plus, Edit } from 'lucide-react';
 
-const ExamVariantCreate = () => {
+// Mock variants data - in real app this would come from API
+const mockVariants = [
+  {
+    id: 1,
+    exam_id: 1,
+    name: 'Хувилбар A',
+    description: 'Эхний хувилбар',
+    created_at: '2025-02-01',
+  },
+  {
+    id: 2,
+    exam_id: 1,
+    name: 'Хувилбар B',
+    description: 'Хоёрдугаар хувилбар',
+    created_at: '2025-02-02',
+  },
+];
+
+const ExamVariantList = () => {
   const { exam_id } = useParams();
-  const navigate = useNavigate();
   const exam = exams.find(e => e.id === parseInt(exam_id));
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    question_ids: [],
-  });
-  const [selectedQuestions, setSelectedQuestions] = useState([]);
+  const variants = mockVariants.filter(v => v.exam_id === parseInt(exam_id));
 
   if (!exam) {
     return (
       <div className='text-center py-12'>
         <p className='text-gray-600 text-lg'>Шалгалт олдсонгүй</p>
+        <Link to='/team6' className='text-blue-600 hover:underline mt-2 inline-block'>
+          Нүүр хуудас руу буцах
+        </Link>
       </div>
     );
   }
 
-  const handleAddQuestion = (questionId) => {
-    if (!selectedQuestions.includes(questionId)) {
-      setSelectedQuestions([...selectedQuestions, questionId]);
-      setFormData({
-        ...formData,
-        question_ids: [...formData.question_ids, questionId],
-      });
-    }
-  };
-
-  const handleRemoveQuestion = (questionId) => {
-    setSelectedQuestions(selectedQuestions.filter(id => id !== questionId));
-    setFormData({
-      ...formData,
-      question_ids: formData.question_ids.filter(id => id !== questionId),
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // In a real app, this would make an API call
-    console.log('Creating variant:', { exam_id, ...formData });
-    navigate(`/team6/exams/${exam_id}/variants`);
-  };
-
   return (
     <div className='space-y-6'>
-      <div className='flex items-center gap-4'>
-        <button
-          onClick={() => navigate(`/team6/exams/${exam_id}/variants`)}
-          className='p-2 hover:bg-gray-100 rounded-lg'>
-          <ArrowLeft size={20} />
-        </button>
-        <h1 className='text-3xl font-bold text-gray-900'>Шинэ хувилбар үүсгэх</h1>
+      <div className='flex justify-between items-center'>
+        <div>
+          <Link
+            to={`/team6/exams/${exam_id}`}
+            className='text-blue-600 hover:underline text-sm mb-2 inline-block'>
+            ← {exam.name} руу буцах
+          </Link>
+          <h1 className='text-3xl font-bold text-gray-900'>
+            {exam.name} - Хувилбарууд
+          </h1>
+          <p className='text-gray-600 mt-2'>
+            Нийт {variants.length} хувилбар байна
+          </p>
+        </div>
+        <Link
+          to={`/team6/exams/${exam_id}/variants/create`}
+          className='bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2'>
+          <Plus size={20} />
+          Шинэ хувилбар
+        </Link>
       </div>
 
-      <form onSubmit={handleSubmit} className='space-y-6'>
-        <div className='bg-white rounded-lg shadow p-6 space-y-4'>
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Хувилбарын нэр *
-            </label>
-            <input
-              type='text'
-              required
-              value={formData.name}
-              onChange={e => setFormData({ ...formData, name: e.target.value })}
-              className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-              placeholder='Жишээ: Хувилбар A'
-            />
-          </div>
-
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Тайлбар
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={e =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              rows={3}
-              className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-              placeholder='Хувилбарын тайлбар...'
-            />
-          </div>
+      {variants.length === 0 ? (
+        <div className='text-center py-12 bg-white rounded-lg shadow'>
+          <FileText size={48} className='mx-auto text-gray-400 mb-4' />
+          <p className='text-gray-600 text-lg'>Хувилбар байхгүй байна</p>
+          <Link
+            to={`/team6/exams/${exam_id}/variants/create`}
+            className='text-blue-600 hover:underline mt-2 inline-block'>
+            Эхний хувилбараа үүсгэх
+          </Link>
         </div>
-
-        <div className='bg-white rounded-lg shadow p-6'>
-          <h2 className='text-xl font-semibold text-gray-900 mb-4'>
-            Сонгосон асуултууд ({selectedQuestions.length})
-          </h2>
-          {selectedQuestions.length === 0 ? (
-            <p className='text-gray-500 text-center py-8'>
-              Асуулт сонгоогүй байна
-            </p>
-          ) : (
-            <div className='space-y-2'>
-              {selectedQuestions.map(qId => {
-                const question = questionBank.find(q => q.id === qId);
-                return question ? (
-                  <div
-                    key={qId}
-                    className='flex justify-between items-start p-3 bg-gray-50 rounded-lg'>
-                    <div className='flex-1'>
-                      <p className='text-sm font-medium text-gray-900'>
-                        {question.question}
-                      </p>
-                      <p className='text-xs text-gray-500 mt-1'>
-                        {question.type} • {question.level_name}
-                      </p>
-                    </div>
-                    <button
-                      type='button'
-                      onClick={() => handleRemoveQuestion(qId)}
-                      className='ml-4 p-1 hover:bg-red-100 rounded'>
-                      <X size={16} className='text-red-600' />
-                    </button>
-                  </div>
-                ) : null;
-              })}
-            </div>
-          )}
-        </div>
-
-        <div className='bg-white rounded-lg shadow p-6'>
-          <h2 className='text-xl font-semibold text-gray-900 mb-4'>
-            Асуултын сан
-          </h2>
-          <div className='space-y-2 max-h-96 overflow-y-auto'>
-            {questionBank
-              .filter(q => !selectedQuestions.includes(q.id))
-              .map(question => (
-                <div
-                  key={question.id}
-                  className='flex justify-between items-start p-3 border border-gray-200 rounded-lg hover:bg-gray-50'>
-                  <div className='flex-1'>
-                    <p className='text-sm font-medium text-gray-900'>
-                      {question.question}
-                    </p>
-                    <p className='text-xs text-gray-500 mt-1'>
-                      {question.category_name} • {question.type} •{' '}
-                      {question.level_name}
-                    </p>
-                  </div>
-                  <button
-                    type='button'
-                    onClick={() => handleAddQuestion(question.id)}
-                    className='ml-4 p-2 bg-blue-600 text-white rounded hover:bg-blue-700'>
-                    <Plus size={16} />
-                  </button>
+      ) : (
+        <div className='grid gap-4'>
+          {variants.map(variant => (
+            <div
+              key={variant.id}
+              className='bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow'>
+              <div className='flex justify-between items-start'>
+                <div className='flex-1'>
+                  <h3 className='text-xl font-semibold text-gray-900 mb-2'>
+                    {variant.name}
+                  </h3>
+                  <p className='text-gray-600 mb-2'>{variant.description}</p>
+                  <p className='text-sm text-gray-500'>
+                    Үүсгэсэн: {new Date(variant.created_at).toLocaleDateString('mn-MN')}
+                  </p>
                 </div>
-              ))}
-          </div>
+                <div className='flex gap-2 ml-4'>
+                  <Link
+                    to={`/team6/exams/${exam_id}/variants/${variant.id}`}
+                    className='bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm'>
+                    Харах
+                  </Link>
+                  <Link
+                    to={`/team6/exams/${exam_id}/variants/${variant.id}/edit`}
+                    className='bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm flex items-center gap-1'>
+                    <Edit size={16} />
+                    Засах
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-
-        <div className='flex justify-end gap-4 pt-4'>
-          <button
-            type='button'
-            onClick={() => navigate(`/team6/exams/${exam_id}/variants`)}
-            className='px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50'>
-            Цуцлах
-          </button>
-          <button
-            type='submit'
-            className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2'>
-            <Save size={20} />
-            Хадгалах
-          </button>
-        </div>
-      </form>
+      )}
     </div>
   );
 };
 
-export default ExamVariantCreate;
+export default ExamVariantList;
 

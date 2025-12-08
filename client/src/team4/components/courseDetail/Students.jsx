@@ -1,86 +1,121 @@
-import React, { useState } from 'react';
-import { User } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { courseAPI } from '../../services/usedAPI';
 
 export default function StudentsTab() {
-  const [currentPage, setCurrentPage] = useState(3);
+  const [searchParams] = useSearchParams();
+  const courseId = searchParams.get('id');
 
-  const students = [
-    { name: 'БАТХААН ГАНБААТАР', id: 'B232270004' },
-    { name: 'АЗЖАРГАЛ ЦЭСЭДНЭМ', id: 'B232270004' },
-    { name: 'ЧИМЭГ-ЭРДЭНЭ БАТ-АМГАЛАН', id: 'B232270004' },
-    { name: 'НАРАНТУНГАЛАГ ...', id: 'B232270004' },
-    { name: 'БАЯРЦЭН БАЯР', id: 'B232270004' },
-    { name: 'ЭНХБАЯР ГАНБОЛД', id: 'B232270004' },
-    { name: 'ТӨГӨЛЭЛ БАТ-ЭНХ', id: 'B232270004' },
-  ];
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const totalPages = 5;
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    if (courseId) loadStudents();
+  }, [courseId]);
+
+  const loadStudents = async () => {
+    try {
+      setLoading(true);
+
+      const data = await courseAPI.getCourseUsers(courseId);
+
+      const items = data.items || [];
+      console.log('suragchid', items);
+      setTotal(items.length);
+
+      const formatted = items.map(item => ({
+        id: item.user_id,
+        role: JSON.parse(item.role)?.name || '',
+        group: JSON.parse(item.group)?.name || '',
+        ...JSON.parse(item.user),
+      }));
+
+      setStudents(formatted);
+    } catch (err) {
+      console.error('Error loading students:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const totalPages = Math.ceil(total / limit);
+
+  // Одоогийн page-ийн сурагчид
+  const start = (page - 1) * limit;
+  const end = start + limit;
+  const pagedStudents = students.slice(start, end);
 
   return (
-    <div className='max-w-4xl mx-auto'>
-      <div className='grid grid-cols-2 gap-4 mb-8'>
-        {students.map((student, index) => (
-          <div
-            key={index}
-            className='bg-white rounded-xl px-6 py-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow'>
-            <div className='w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center'>
-              <User className='text-gray-400' size={24} />
-            </div>
-            <div>
-              <h3 className='font-semibold text-gray-900 text-sm'>
-                {student.name}
-              </h3>
-              <p className='text-gray-500 text-xs'>{student.id}</p>
-            </div>
+    <div className='bg-white p-6 rounded-lg shadow-sm'>
+      <h2 className='text-xl font-semibold mb-4'>Суралцагчдын жагсаалт</h2>
+
+      {loading ? (
+        <p className='text-gray-500'>Уншиж байна...</p>
+      ) : students.length === 0 ? (
+        <p className='text-gray-500'>Суралцагч олдсонгүй.</p>
+      ) : (
+        <>
+          <div className='space-y-3'>
+            {pagedStudents.map(st => (
+              <div
+                key={st.id}
+                className='flex items-center justify-between p-3 border rounded-lg'>
+                <div>
+                  <p className='font-medium text-gray-900'>
+                    {st.last_name} {st.first_name}
+                  </p>
+                  <p className='text-gray-500 text-sm'>{st.email}</p>
+                </div>
+
+                <div className='text-right text-sm'>
+                  <p className='text-gray-700'>{st.role}</p>
+                  {st.group && (
+                    <p className='text-gray-500'>Бүлэг: {st.group}</p>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Pagination */}
-      <div className='flex items-center justify-center gap-2'>
-        <button className='p-2 hover:bg-gray-100 rounded-lg transition-colors'>
-          <svg
-            className='w-5 h-5 text-gray-400'
-            fill='none'
-            stroke='currentColor'
-            viewBox='0 0 24 24'>
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M15 19l-7-7 7-7'
-            />
-          </svg>
-        </button>
+          {/* Pagination */}
+          <div className='flex items-center justify-center mt-6 space-x-4'>
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className={`px-4 py-2 rounded-lg border ${
+                page === 1
+                  ? 'text-gray-400 border-gray-300 cursor-not-allowed'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}>
+              Өмнөх
+            </button>
 
-        {[1, 2, 3, 4, 5].map(page => (
-          <button
-            key={page}
-            onClick={() => setCurrentPage(page)}
-            className={`w-10 h-10 rounded-lg font-medium transition-colors ${
-              currentPage === page
-                ? 'bg-orange-500 text-white'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}>
-            {page}
-          </button>
-        ))}
+            <span className='text-gray-700 text-sm'>
+              Хуудас {page} / {totalPages || 1}
+            </span>
 
-        <button className='p-2 hover:bg-gray-100 rounded-lg transition-colors'>
-          <svg
-            className='w-5 h-5 text-gray-400'
-            fill='none'
-            stroke='currentColor'
-            viewBox='0 0 24 24'>
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M9 5l7 7-7 7'
-            />
-          </svg>
-        </button>
-      </div>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className={`px-4 py-2 rounded-lg border ${
+                page === totalPages
+                  ? 'text-gray-400 border-gray-300 cursor-not-allowed'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}>
+              Дараах
+            </button>
+          </div>
+        </>
+      )}
+
+      {error && <p className='text-red-500 mt-3'>{error}</p>}
     </div>
   );
 }

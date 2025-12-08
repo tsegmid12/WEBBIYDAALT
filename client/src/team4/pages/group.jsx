@@ -1,45 +1,109 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { courseAPI } from '../services/usedAPI';
 
 export default function GroupsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState(new Set());
+  const [teams, setTeams] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const teams = [
-    {
-      id: 1,
-      name: 'Team 01',
-      course: 'Веб систем ба технологи',
-      members: 12,
-      color: 'bg-white',
-      isActive: true,
-    },
-    {
-      id: 2,
-      name: 'Team 02',
-      course: 'Веб систем ба технологи',
-      members: 12,
-      color: 'bg-white',
-      isActive: true,
-    },
-    {
-      id: 3,
-      name: 'Team 03',
-      course: 'Веб систем ба технологи',
-      members: 12,
-      color: 'bg-white',
-      isActive: true,
-    },
-    {
-      id: 4,
-      name: 'Team 04',
-      course: 'Веб систем ба технологи',
-      members: 12,
-      color: 'bg-white',
-      isActive: true,
-    },
-  ];
+  useEffect(() => {
+    fetchUserGroups();
+    loadFavoritesFromStorage();
+  }, []);
+
+  const fetchUserGroups = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Хичээлүүдийн мэдээлэл авах
+      const coursesData = await courseAPI.getMyCourses();
+      const coursesArray =
+        coursesData.items || coursesData.courses || coursesData || [];
+
+      // Бүх хичээлийн сурагчдаас группуудыг цуглуулах
+      const groupsMap = new Map();
+
+      for (const course of coursesArray) {
+        try {
+          const courseUsers = await courseAPI.getCourseUsers(course.id);
+          const items = courseUsers.items || [];
+
+          items.forEach(item => {
+            try {
+              const groupData = JSON.parse(item.group);
+              const courseInfo = {
+                id: course.id,
+                name: course.name || course.title || 'Хичээлийн нэр',
+              };
+
+              if (groupData && groupData.id) {
+                if (!groupsMap.has(groupData.id)) {
+                  groupsMap.set(groupData.id, {
+                    id: groupData.id,
+                    name: groupData.name || `Group ${groupData.id}`,
+                    course: courseInfo.name,
+                    courseId: courseInfo.id,
+                    members: 0,
+                    color: 'bg-white',
+                    isActive: true,
+                  });
+                }
+                // Сурагчдын тоог нэмэх
+                const group = groupsMap.get(groupData.id);
+                group.members += 1;
+              }
+            } catch (e) {
+              console.error('Error parsing group data:', e);
+            }
+          });
+        } catch (e) {
+          console.error(`Error fetching users for course ${course.id}:`, e);
+        }
+      }
+
+      // Map-аас array руу хөрвүүлэх
+      const teamsArray = Array.from(groupsMap.values());
+      setTeams(teamsArray);
+    } catch (err) {
+      console.error('Error fetching user groups:', err);
+      setError(err.message);
+      // Demo data fallback
+      setTeams([
+        {
+          id: 1,
+          name: 'Team 01',
+          course: 'Веб систем ба технологи',
+          members: 12,
+          color: 'bg-white',
+          isActive: true,
+        },
+        {
+          id: 2,
+          name: 'Team 02',
+          course: 'Веб систем ба технологи',
+          members: 12,
+          color: 'bg-white',
+          isActive: true,
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadFavoritesFromStorage = () => {
+    try {
+      const favs = JSON.parse(localStorage.getItem('favoriteGroups') || '[]');
+      setFavorites(new Set(favs));
+    } catch (err) {
+      console.error('Error loading favorites:', err);
+    }
+  };
 
   const filteredTeams = teams.filter(team => {
     if (searchQuery.trim() === '') return true;
@@ -62,9 +126,28 @@ export default function GroupsPage() {
       } else {
         newFavorites.add(teamId);
       }
+      try {
+        localStorage.setItem(
+          'favoriteGroups',
+          JSON.stringify([...newFavorites])
+        );
+      } catch (err) {
+        console.error('Error saving favorites:', err);
+      }
       return newFavorites;
     });
   };
+
+  if (loading) {
+    return (
+      <div className='min-h-[60vh] bg-gray-50 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4'></div>
+          <p className='text-gray-600'>Багуудыг ачааллаж байна...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='min-h-[60vh] bg-gray-50'>
@@ -88,6 +171,19 @@ export default function GroupsPage() {
         </div>
       </div>
       <div className='max-w-7xl mx-auto px-4 sm:px-8 py-6 sm:py-8'>
+        {error && (
+          <div className='bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6'>
+            <div className='flex items-start'>
+              <div className='flex-1'>
+                <p className='text-yellow-800 font-medium'>Анхааруулга</p>
+                <p className='text-yellow-700 text-sm mt-1'>
+                  Багуудыг ачааллахад алдаа гарлаа. Demo өгөгдөл харуулж байна.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <p className='text-gray-600 mb-6'>
           {filteredTeams.length} баг олдлоо
           {searchQuery && ` "${searchQuery}" хайлтаар`}
@@ -96,6 +192,13 @@ export default function GroupsPage() {
         {filteredTeams.length === 0 ? (
           <div className='text-center py-12'>
             <p className='text-gray-500 text-lg'>Баг олдсонгүй</p>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className='mt-4 text-cyan-600 hover:text-cyan-700 underline'>
+                Хайлт арилгах
+              </button>
+            )}
           </div>
         ) : (
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
@@ -109,8 +212,8 @@ export default function GroupsPage() {
                 <div className='flex items-start justify-between mb-4'>
                   <div
                     className={`${team.color} ${
-                      team.isActive ? 'textGreen' : 'text - white'
-                    }  w-10 h-10 rounded-lg flex items-center justify-center font-bold`}>
+                      team.isActive ? 'textGreen' : 'text-white'
+                    } w-10 h-10 rounded-lg flex items-center justify-center font-bold`}>
                     {team.id}
                   </div>
                   <button
@@ -140,18 +243,6 @@ export default function GroupsPage() {
                 </p>
 
                 <div className='flex items-center justify-between'>
-                  {/* <div className='flex -space-x-2'>
-                    {[1, 2, 3, 4, 5].map((_, idx) => (
-                      <div
-                        key={idx}
-                        className={`w-8 h-8 rounded-full border-2 ${
-                          team.isActive
-                            ? 'border-green-400 bg-gray-300'
-                            : 'border-white bg-gray-300'
-                        }`}
-                      />
-                    ))}
-                  </div> */}
                   <div className='flex -space-x-2'>
                     {[1, 2, 3, 4, 5].map((_, idx) => (
                       <div

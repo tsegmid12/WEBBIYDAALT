@@ -3,7 +3,7 @@ import React from 'react';
 export default function Navigation({ activeTab, setActiveTab }) {
   const tabs = [
     { id: 'lessons', label: 'Хичээл' },
-    { id: 'students', label: 'Суралчид' },
+    { id: 'students', label: 'Сурагчид' },
     { id: 'teams', label: 'Багууд' },
   ];
 

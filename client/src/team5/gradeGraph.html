@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дүнгийн График - Багшийн Журнал</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ===== BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-bg: #ffffff;
+            --text-color: #330000;
+            --header-bg: #e0e0e0;
+            --button-bg: #b9c9ed;
+            --button-hover: #9fc9ed;
+            --footer-bg: #1a237e;
+            --card-bg: white;
+            --border-color: #ddd;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* ===== HEADER STYLES ===== */
+        .header {
+            background-color: var(--header-bg);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .menu-btn {
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .menu-btn:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .notification-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-color);
+            position: relative;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #a0a0a0;
+            border-radius: 50%;
+        }
+        
+        /* ===== MAIN CONTENT STYLES ===== */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .course-selection {
+            background-color: #e8e8e8;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        
+        .selected-course {
+            background-color: #d4edda;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #28a745;
+            margin-bottom: 15px;
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--footer-bg);
+        }
+        
+        .chart-wrapper {
+            height: 300px;
+            position: relative;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--footer-bg);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background-color: var(--button-hover);
+        }
+        
+        /* ===== FOOTER STYLES ===== */
+        .footer {
+            background-color: var(--footer-bg);
+            color: white;
+            text-align: center;
+            padding: 25px 20px;
+            margin-top: 40px;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
+        /* ===== SIDEBAR STYLES ===== */
+        .overlay-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background-color: #f5f5f5;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+        }
+        
+        .menu-header {
+            background-color: var(--header-bg);
+            padding: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .back-btn:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        
+        .settings-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        .menu-items {
+            flex: 1;
+            padding: 30px;
+        }
+        
+        .menu-item {
+            padding: 20px 0;
+            font-size: 18px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: color 0.3s, background-color 0.3s;
+            padding-left: 15px;
+            border-radius: 5px;
+        }
+        
+        .menu-item:hover {
+            color: var(--footer-bg);
+            background-color: #e8e8e8;
+        }
+        
+        .overlay-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        /* ===== RESPONSIVE STYLES ===== */
+        @media (max-width: 768px) {
+            .overlay-menu {
+                width: 80%;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 80%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .overlay-menu {
+                width: 85%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .menu-item {
+                font-size: 16px;
+                padding: 15px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <button class="menu-btn" id="menuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="user-info">
+            <button class="notification-btn">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">3</span>
+            </button>
+            <span>Хэрэглэгчийн нэр</span>
+            <div class="user-avatar"></div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Дүнгийн График</h1>
+                <div class="course-selection">
+                    Хичээл: <strong>Веб зохиомж (FSA.316)</strong>
+                </div>
+        
+            </div>
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div class="stats-grid" id="statsGrid">
+            <!-- Statistics will be populated by JavaScript -->
+        </div>
+        
+        <!-- Charts -->
+        <div class="charts-container">
+            <div class="chart-card">
+                <div class="chart-title">Үнэлгээний хуваарилалт</div>
+                <div class="chart-wrapper">
+                    <canvas id="gradeDistributionChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-title">Онооны харьцуулалт</div>
+                <div class="chart-wrapper">
+                    <canvas id="scoreComparisonChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-title">Сурагчдын оноо (Ба, Шалгалтын оноо)</div>
+                <div class="chart-wrapper">
+                    <canvas id="studentScoresChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-title">Чансааны оноо</div>
+                <div class="chart-wrapper">
+                    <canvas id="rankScoresChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn" onclick="window.location.href='journal.html'">
+                <i class="fas fa-table"></i> Хүснэгт рүү буцах
+            </button>
+            <button class="btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Хэвлэх
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 Class Technologies Inc.</p>
+        <p>Нууцлалын бодлого | Үйлчилгээний нөхцөл</p>
+        <p>Сургуулийн нэр</p>
+    </footer>
+
+    <!-- Half-screen Overlay Menu -->
+    <div class="overlay-backdrop" id="overlayBackdrop"></div>
+    <div class="overlay-menu" id="overlayMenu">
+        <div class="menu-header">
+            <button class="back-btn" id="backBtn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span>Багшийн самбар</span>
+            <button class="settings-btn">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+       <div class="menu-items">
+            <div class="menu-item">Багшийн самбар</div>
+            <div class="menu-item">Оюутны дүн харах</div>
+            <div class="menu-item">Ирц бүртгэх</div>
+            <div class="menu-item">Хүсэлт баталгаажуулах</div>
+            <div class="menu-item">Хуваарь</div>
+            <div class="menu-item">Гарах</div>
+        </div>
+    </div>
+
+    <script>
+        // Load students data from localStorage
+        const students = JSON.parse(localStorage.getItem('students')) || [];
+        
+        // Function to calculate grades
+        function calculateGrades(base, exam) {
+            const total = base + exam;
+            let grade, rank;
+            
+            if (total >= 95) { grade = "A+"; rank = 12; }
+            else if (total >= 90) { grade = "A"; rank = 11; }
+            else if (total >= 80) { grade = "B"; rank = 10; }
+            else if (total >= 70) { grade = "C"; rank = 9; }
+            else if (total >= 60) { grade = "D"; rank = 8; }
+            else { grade = "F"; rank = 0; }
+            
+            return { total, grade, rank };
+        }
+
+        // Process student data for charts
+        function processStudentData() {
+            return students.map(student => {
+                const { total, grade, rank } = calculateGrades(student.baseScore, student.examScore);
+                return {
+                    name: student.name,
+                    baseScore: student.baseScore,
+                    examScore: student.examScore,
+                    total: total,
+                    grade: grade,
+                    rank: rank
+                };
+            });
+        }
+
+        // Calculate statistics
+        function calculateStatistics(processedStudents) {
+            const totals = processedStudents.map(s => s.total);
+            const baseScores = processedStudents.map(s => s.baseScore);
+            const examScores = processedStudents.map(s => s.examScore);
+            
+            const average = totals.reduce((a, b) => a + b, 0) / totals.length;
+            const averageBase = baseScores.reduce((a, b) => a + b, 0) / baseScores.length;
+            const averageExam = examScores.reduce((a, b) => a + b, 0) / examScores.length;
+            const maxScore = Math.max(...totals);
+            const minScore = Math.min(...totals);
+            
+            return {
+                totalStudents: processedStudents.length,
+                averageScore: average.toFixed(1),
+                averageBase: averageBase.toFixed(1),
+                averageExam: averageExam.toFixed(1),
+                maxScore: maxScore,
+                minScore: minScore
+            };
+        }
+
+        // Update statistics cards
+        function updateStatistics(statistics) {
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${statistics.totalStudents}</div>
+                    <div class="stat-label">Нийт сурагч</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${statistics.averageScore}</div>
+                    <div class="stat-label">Дундаж нийт оноо</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${statistics.averageBase}</div>
+                    <div class="stat-label">Дундаж Ба оноо</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${statistics.averageExam}</div>
+                    <div class="stat-label">Дундаж Шал. оноо</div>
+                </div>
+            `;
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            const processedStudents = processStudentData();
+            const statistics = calculateStatistics(processedStudents);
+            
+            // Update statistics
+            updateStatistics(statistics);
+            
+            // Calculate grade distribution
+            const gradeCount = {
+                'A+': 0, 'A': 0, 'B': 0, 'C': 0, 'D': 0, 'F': 0
+            };
+            
+            processedStudents.forEach(student => {
+                gradeCount[student.grade]++;
+            });
+
+            // Grade Distribution Chart (Pie)
+            const gradeCtx = document.getElementById('gradeDistributionChart').getContext('2d');
+            new Chart(gradeCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['A+ (95-100)', 'A (90-94)', 'B (80-89)', 'C (70-79)', 'D (60-69)', 'F (0-59)'],
+                    datasets: [{
+                        data: [
+                            gradeCount['A+'],
+                            gradeCount['A'], 
+                            gradeCount['B'],
+                            gradeCount['C'],
+                            gradeCount['D'],
+                            gradeCount['F']
+                        ],
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Score Comparison Chart (Bar)
+            const comparisonCtx = document.getElementById('scoreComparisonChart').getContext('2d');
+            new Chart(comparisonCtx, {
+                type: 'bar',
+                data: {
+                    labels: processedStudents.map(s => s.name),
+                    datasets: [{
+                        label: 'Нийт оноо',
+                        data: processedStudents.map(s => s.total),
+                        backgroundColor: '#36A2EB',
+                        borderColor: '#2a7cba',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Оноо'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Сурагчид'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Student Scores Chart - Ба, Шалгалтын оноо (Bar Chart)
+            const studentCtx = document.getElementById('studentScoresChart').getContext('2d');
+            new Chart(studentCtx, {
+                type: 'bar',
+                data: {
+                    labels: processedStudents.map(s => s.name),
+                    datasets: [
+                        {
+                            label: 'Ба оноо (0-70)',
+                            data: processedStudents.map(s => s.baseScore),
+                            backgroundColor: '#FF6384',
+                            borderColor: '#e55347',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Шал. оноо (0-30)',
+                            data: processedStudents.map(s => s.examScore),
+                            backgroundColor: '#FFCE56',
+                            borderColor: '#e5b847',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Оноо'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Сурагчид'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Rank Scores Chart (Radar)
+            const rankCtx = document.getElementById('rankScoresChart').getContext('2d');
+            new Chart(rankCtx, {
+                type: 'radar',
+                data: {
+                    labels: processedStudents.map(s => s.name),
+                    datasets: [{
+                        label: 'Чансааны оноо',
+                        data: processedStudents.map(s => s.rank),
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: '#4BC0C0',
+                        pointBackgroundColor: '#4BC0C0',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#4BC0C0'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 12,
+                            ticks: {
+                                stepSize: 2
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Menu functionality
+        const menuBtn = document.getElementById('menuBtn');
+        const backBtn = document.getElementById('backBtn');
+        const overlayMenu = document.getElementById('overlayMenu');
+        const overlayBackdrop = document.getElementById('overlayBackdrop');
+        
+        function openMenu() {
+            overlayMenu.style.display = 'flex';
+            overlayBackdrop.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeMenu() {
+            overlayMenu.style.display = 'none';
+            overlayBackdrop.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        menuBtn.addEventListener('click', openMenu);
+        backBtn.addEventListener('click', closeMenu);
+        overlayBackdrop.addEventListener('click', closeMenu);
+        
+        // Close menu when clicking on menu items
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(item => {
+            item.addEventListener('click', closeMenu);
+        });
+
+        // Settings button in menu
+        document.querySelector('.settings-btn').addEventListener('click', function() {
+            alert('Тохиргооны цэс нээгдлээ');
+        });
+
+        // Notification button
+        document.querySelector('.notification-btn').addEventListener('click', function() {
+            alert('Таны 3 шинэ мэдэгдэл байна');
+        });
+
+        // Initialize charts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (students.length > 0) {
+                initializeCharts();
+            } else {
+                document.getElementById('statsGrid').innerHTML = `
+                    <div class="stat-card" style="grid-column: 1 / -1; text-align: center;">
+                        <div class="stat-value">Өгөгдөл байхгүй</div>
+                        <div class="stat-label">Эхлээд журнал дээр дүн оруулна уу</div>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

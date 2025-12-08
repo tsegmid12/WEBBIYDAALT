@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { groupAPI } from '../../services/api';
+import { groupAPI, courseAPI } from '../../services/api';
 import { ArrowLeft, Users, CalendarDays, Info } from 'lucide-react';
 
 export default function GroupDetail() {
@@ -19,22 +19,83 @@ export default function GroupDetail() {
       setLoading(true);
       setError(null);
       try {
-        const [groupRes, membersRes] = await Promise.all([
-          groupAPI.getGroupById(groupId),
-          groupAPI.getGroupMembers(groupId),
-        ]);
+        const groupRes = await groupAPI.getGroupById(groupId);
+
         if (!isMounted) return;
-        setGroup(groupRes?.group || groupRes);
-        setMembers(membersRes?.members || membersRes || []);
+
+        // API response-аас group объект авах
+        const groupData = groupRes?.group || groupRes;
+        setGroup(groupData);
+
+        // Group-ийн members авахыг оролдох
+        // Бүх сурагчдыг авч, дараа нь энэ group-т харьяалагдагчдыг filter хийнэ
+        try {
+          // courseId нь group дээр байгаа эсэх үзээрэй
+          const courseId = groupData?.course_id || groupData?.courseId;
+          if (courseId) {
+            const allUsers = await courseAPI.getCourseUsers(courseId);
+            const courseUsers = allUsers?.items || allUsers || [];
+            console.log('allusers', courseUsers);
+            // Энэ group-т харьяалагдагч сурагчдыг олох
+            const groupMembers = courseUsers
+              .filter(user => {
+                try {
+                  const group = JSON.parse(user.group || '{}');
+                  return group.id === groupId;
+                } catch {
+                  return false;
+                }
+              })
+              .map(item => {
+                try {
+                  const userData = JSON.parse(item.user || '{}');
+                  const roleData = JSON.parse(item.role || '{}');
+                  return {
+                    id: item.user_id,
+                    name: `${userData.last_name || ''} ${
+                      userData.first_name || ''
+                    }`.trim(),
+                    email: userData.email || '',
+                    role: roleData.name || 'Сурагч',
+                    avatar: userData.picture || '/team4/student/profile.png',
+                  };
+                } catch {
+                  return {
+                    id: item.user_id,
+                    name: 'Unknown',
+                    email: '',
+                    role: 'Сурагч',
+                    avatar: '/team4/student/profile.png',
+                  };
+                }
+              });
+
+            if (isMounted) {
+              setMembers(groupMembers);
+            }
+          } else {
+            if (isMounted) {
+              setMembers([]);
+            }
+          }
+        } catch (membersErr) {
+          console.warn('Failed to load members:', membersErr);
+          if (isMounted) {
+            setMembers([]);
+          }
+        }
       } catch (e) {
-        console.error('Failed to load group details, using mock data.', e);
+        console.error('Failed to load group details:', e);
         if (!isMounted) return;
+
+        // Mock data - API-тай адил структур
         const mockMembers = Array.from({ length: 6 }).map((_, idx) => ({
           id: idx + 1,
           name: `Гишүүн ${idx + 1}`,
           role: idx === 0 ? 'Ахлагч' : 'Гишүүн',
           avatar: '/team4/student/profile.png',
         }));
+
         setGroup({
           id: groupId,
           name: `Team ${groupId.toString().padStart(2, '0')}`,
@@ -46,6 +107,7 @@ export default function GroupDetail() {
           color: 'bg-blue-500',
         });
         setMembers(mockMembers);
+        setError(e);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -126,6 +188,7 @@ export default function GroupDetail() {
     ],
     []
   );
+
   const biydaalt = useMemo(
     () => [
       {
@@ -160,19 +223,6 @@ export default function GroupDetail() {
     return (
       <div className='min-h-[50vh] flex items-center justify-center text-gray-500'>
         Ачаалж байна...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className='max-w-6xl mx-auto'>
-        <div className='mb-4'>
-          <BackLink />
-        </div>
-        <div className='p-6 bg-red-50 border border-red-200 text-red-700 rounded-lg'>
-          Алдаа: {error?.message || 'Тодорхойгүй алдаа гарлаа.'}
-        </div>
       </div>
     );
   }
@@ -248,6 +298,12 @@ export default function GroupDetail() {
           ))}
         </nav>
 
+        {error && (
+          <div className='mb-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-lg text-sm'>
+            ⚠️ Mock өгөгдөл ашигла байна. Алдаа: {error?.message}
+          </div>
+        )}
+
         <section>
           {activeTab === 'overview' && (
             <div className='bg-white rounded-2xl shadow-sm border p-6'>
@@ -260,28 +316,29 @@ export default function GroupDetail() {
 
           {activeTab === 'members' && (
             <div className='bg-white rounded-2xl shadow-sm border p-6'>
-              <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
-                {members.map(m => (
-                  <div
-                    key={m.id}
-                    className='flex items-center gap-3 border rounded-xl p-3 hover:shadow-sm'>
-                    <img
-                      src={m.avatar || '/team4/student/profile.png'}
-                      alt={m.name}
-                      className='w-10 h-10 rounded-full object-cover'
-                    />
-                    <div>
-                      <p className='font-medium text-gray-900'>{m.name}</p>
-                      <p className='text-xs text-gray-500'>
-                        {m.role || 'Student'}
-                      </p>
+              {members.length > 0 ? (
+                <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+                  {members.map(m => (
+                    <div
+                      key={m.id}
+                      className='flex items-center gap-3 border rounded-xl p-3 hover:shadow-sm'>
+                      <img
+                        src={m.avatar || '/team4/student/profile.png'}
+                        alt={m.name}
+                        className='w-10 h-10 rounded-full object-cover'
+                      />
+                      <div>
+                        <p className='font-medium text-gray-900'>{m.name}</p>
+                        <p className='text-xs text-gray-500'>
+                          {m.role || 'Student'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {members.length === 0 && (
-                  <p className='text-gray-500'>Гишүүдийн мэдээлэл алга.</p>
-                )}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className='text-gray-500'>Гишүүдийн мэдээлэл алга.</p>
+              )}
             </div>
           )}
 

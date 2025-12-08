@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Heart,
@@ -9,11 +9,13 @@ import {
   Linkedin,
   Youtube,
 } from 'lucide-react';
-import { studentAPI, authAPI } from './services/api';
+import { studentAPI, authAPI } from './services/usedAPI';
+import { UserContext } from '../contexts/UserContext';
 
 const Team4Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useContext(UserContext);
   const isActive = path => location.pathname === path;
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -42,7 +44,9 @@ const Team4Layout = () => {
 
   const handleLogout = async () => {
     try {
+      logout();
       await authAPI.logout();
+      localStorage.removeItem('currentUser');
       navigate('/');
     } catch (err) {
       console.error('Error logging out:', err);
@@ -63,12 +67,11 @@ const Team4Layout = () => {
             />
           </Link>
 
-          {/* Center nav - hidden on small screens */}
           <nav className='hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-8'>
             <Link
-              to='/team4'
+              to='/team4/student'
               className={`${
-                isActive('/team4') ? 'underline font-semibold' : ''
+                isActive('/team4/student') ? 'underline font-semibold' : ''
               }`}>
               Нүүр
             </Link>
@@ -188,7 +191,6 @@ const Team4Layout = () => {
           </div>
         </div>
 
-        {/* Mobile dropdown menu */}
         {mobileOpen && (
           <div className='md:hidden max-w-7xl mx-auto px-2 mt-3'>
             <div className='bg-white/10 rounded-lg backdrop-blur p-2 flex flex-col'>

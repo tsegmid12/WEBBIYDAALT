@@ -63,45 +63,13 @@ export const UserProvider = ({ children }) => {
     return false
   }
 
-  const loginOtpPhone = async (phone, code, push_token) => {
-    try {
-      const data = await UserService.logInOtpPhone({ phone, code, push_token })
-      return await handleLoginResult(data)
-    } catch (e) {
-      alert('Нэвтэрч чадсангүй. Сервертэй харьцахад алдаа гарлаа.')
-    }
-    return false
-  }
-
-  const loginOtpEmail = async (email, code, push_token) => {
-    try {
-      const data = await UserService.logInOtpEmail({ email, code, push_token })
-      return await handleLoginResult(data)
-    } catch (e) {
-      alert('Нэвтэрч чадсангүй. Сервертэй харьцахад алдаа гарлаа.')
-    }
-    return false
-  }
-
-  const sendPhoneOTP = async (phone) => {
-    return await UserService.sendPhoneOTP(phone)
-  }
-
-  const sendEmailOTP = async (email) => {
-    return await UserService.sendEmailOTP(email)
-  }
-
-  const checkOTP = async (key) => {
-
-  }
-
   const logout = async () => {
     await localStorage.removeItem('access_token')
     await localStorage.removeItem('refresh_token')
     setUser(undefined)
   }
 
-  return <UserContext.Provider value={{ push_token, user, logout, login, loginOtpEmail, loginOtpPhone, sendPhoneOTP, sendEmailOTP, checkOTP, reload }}>
+  return <UserContext.Provider value={{ push_token, user, logout, login, reload }}>
     {children}
   </UserContext.Provider>
 }

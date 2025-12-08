@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { exams, studentSubmissions, courses } from "../data/mockData";
 import {
   Award,
   CheckCircle,
@@ -9,67 +9,65 @@ import {
   RotateCcw,
 } from "lucide-react";
 
-const API = "https://todu.mn/bs/lms/open-api-catalog/v1/"; // ★★★ API ROOT
-
 const ExamResult = () => {
   const { exam_id, student_id } = useParams();
 
-  const [loading, setLoading] = useState(true);
-  const [exam, setExam] = useState(null);
-  const [course, setCourse] = useState(null);
-  const [submission, setSubmission] = useState(null);
+  // Load exams from both mockData and localStorage
+  const localStorageExams = JSON.parse(
+    localStorage.getItem("all_exams") || "[]"
+  );
+  const allExams = [...exams];
+  localStorageExams.forEach((lsExam) => {
+    const existingIndex = allExams.findIndex((e) => e.id === lsExam.id);
+    if (existingIndex >= 0) {
+      allExams[existingIndex] = lsExam;
+    } else {
+      allExams.push(lsExam);
+    }
+  });
 
-  // --------------------------
-  // FETCH EXAM
-  // --------------------------
-  const fetchExam = async () => {
-    const res = await fetch(`${API}exams/${exam_id}`);
-    return await res.json();
-  };
+  const exam = allExams.find((e) => e.id === parseInt(exam_id));
 
-  // --------------------------
-  // FETCH SUBMISSION (latest)
-  // --------------------------
-  const fetchSubmission = async () => {
-    const res = await fetch(
-      `${API}exams/${exam_id}/submissions?student_id=${student_id}`
+  // Load submissions from both mockData and localStorage
+  const localStorageSubmissions = JSON.parse(
+    localStorage.getItem("all_exam_submissions") || "[]"
+  );
+  const allSubmissions = [...studentSubmissions];
+  localStorageSubmissions.forEach((lsSub) => {
+    const existingIndex = allSubmissions.findIndex(
+      (s) =>
+        s.exam_id === lsSub.exam_id &&
+        s.student_id === lsSub.student_id &&
+        s.attempt_number === lsSub.attempt_number
     );
-    const data = await res.json();
-    return data?.[0] || null;
-  };
+    if (existingIndex >= 0) {
+      allSubmissions[existingIndex] = lsSub;
+    } else {
+      allSubmissions.push(lsSub);
+    }
+  });
 
-  // --------------------------
-  // FETCH COURSE
-  // --------------------------
-  const fetchCourse = async (courseId) => {
-    const res = await fetch(`${API}courses/${courseId}`);
-    return await res.json();
-  };
+  const submission = allSubmissions.find(
+    (s) =>
+      s.exam_id === parseInt(exam_id) && s.student_id === parseInt(student_id)
+  );
 
-  useEffect(() => {
-  const loadResult = async () => {
-    const token = localStorage.getItem("access_token");
+  // Ensure submission has required fields with defaults
+  if (submission && !submission.answers) {
+    submission.answers = [];
+  }
+  if (submission && submission.grade_point === undefined) {
+    submission.grade_point = 0;
+  }
+  if (submission && submission.total_possible === undefined) {
+    submission.total_possible = 0;
+  }
+  if (submission && submission.total_earned === undefined) {
+    submission.total_earned = 0;
+  }
 
-    const res = await fetch(
-      `${API}exams/${exam_id}/users/${student_id}/attempts/${attempt}/evaluation`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    const data = await res.json();
-    setResult(data);
-  };
+  const course = exam ? courses.find((c) => c.id === exam.course_id) : null;
 
-  loadResult();
-}, []);
-
-
-  // --------------------------
-  // LOADING
-  // --------------------------
-  if (loading) return <p className="p-6 text-center">Түр хүлээнэ үү...</p>;
-
-  // --------------------------
-  // EXAM NOT FOUND
-  // --------------------------
   if (!exam) {
     return (
       <div className="text-center py-12">
@@ -84,9 +82,6 @@ const ExamResult = () => {
     );
   }
 
-  // --------------------------
-  // RESULT NOT FOUND
-  // --------------------------
   if (!submission) {
     return (
       <div className="max-w-3xl mx-auto text-center py-12">
@@ -101,13 +96,11 @@ const ExamResult = () => {
     );
   }
 
-  // --------------------------
-  // STATS
-  // --------------------------
   const passed = submission.grade_point >= 60;
   const correctCount = submission.answers.filter((a) => a.is_correct).length;
   const totalCount = submission.answers.length;
 
+  // Color coding based on score
   const getScoreColor = (score) => {
     if (score >= 90) return "text-green-600";
     if (score >= 80) return "text-green-500";
@@ -126,7 +119,6 @@ const ExamResult = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* HEADER */}
       <div className="flex items-center gap-4">
         <Link
           to={`/team6/exams/${exam_id}/students/${student_id}`}
@@ -144,7 +136,7 @@ const ExamResult = () => {
         </div>
       </div>
 
-      {/* MAIN RESULT CARD */}
+      {/* Main Result Card */}
       <div
         className={`bg-white rounded-lg shadow-xl p-8 text-center border-4 ${
           passed ? "border-green-500" : "border-red-500"
@@ -170,21 +162,18 @@ const ExamResult = () => {
               </h2>
             </div>
           )}
-
-          <div className="space-y-1 text-gray-700">
-            {submission.submit_time && (
-              <p>
-                Илгээсэн:{" "}
-                {new Date(submission.submit_time).toLocaleString("mn-MN")}
-              </p>
-            )}
-
+          <div className="space-y-1">
+            <p className="text-gray-600">
+              {submission.submit_time &&
+                `Илгээсэн: ${new Date(submission.submit_time).toLocaleString(
+                  "mn-MN"
+                )}`}
+            </p>
             {submission.completion_time_minutes && (
               <p className="text-sm text-gray-500">
                 Дуусгасан хугацаа: {submission.completion_time_minutes} минут
               </p>
             )}
-
             {submission.attempt_number && (
               <p className="text-sm text-gray-500">
                 {submission.attempt_number}-р оролдлого
@@ -193,14 +182,14 @@ const ExamResult = () => {
           </div>
         </div>
 
-        {/* SCORE CARDS */}
+        {/* Score Display with Colors */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div
             className={`rounded-lg p-6 border-4 ${getScoreBgColor(
               submission.grade_point
             )}`}
           >
-            <p className="text-sm text-gray-700 mb-2">Оноо</p>
+            <p className="text-sm font-medium text-gray-700 mb-2">Оноо</p>
             <p
               className={`text-4xl font-bold ${getScoreColor(
                 submission.grade_point
@@ -208,14 +197,14 @@ const ExamResult = () => {
             >
               {submission.total_earned}/{submission.total_possible}
             </p>
+            <p className="text-sm text-gray-600 mt-1">Нийт оноо</p>
           </div>
-
           <div
             className={`rounded-lg p-6 border-4 ${getScoreBgColor(
               submission.grade_point
             )}`}
           >
-            <p className="text-sm text-gray-700 mb-2">Эзлэх хувь</p>
+            <p className="text-sm font-medium text-gray-700 mb-2">Эзлэх хувь</p>
             <p
               className={`text-4xl font-bold ${getScoreColor(
                 submission.grade_point
@@ -223,10 +212,11 @@ const ExamResult = () => {
             >
               {submission.grade_point.toFixed(1)}%
             </p>
+            <p className="text-sm text-gray-600 mt-1">Амжилт</p>
           </div>
         </div>
 
-        {/* CORRECT / WRONG */}
+        {/* Correct/Incorrect Stats */}
         <div className="flex items-center justify-center gap-6 mb-6">
           <div className="flex items-center gap-2 bg-green-50 px-4 py-2 rounded-lg border border-green-200">
             <CheckCircle className="text-green-600" size={20} />
@@ -236,7 +226,6 @@ const ExamResult = () => {
               {totalCount}
             </span>
           </div>
-
           <div className="flex items-center gap-2 bg-red-50 px-4 py-2 rounded-lg border border-red-200">
             <XCircle className="text-red-600" size={20} />
             <span className="text-gray-700 font-medium">
@@ -249,57 +238,55 @@ const ExamResult = () => {
           </div>
         </div>
 
-        {/* TEACHER CHECKING INFO */}
         {submission.status === "submitted" && (
-          <div className="pt-6 border-t border-gray-200 text-sm text-gray-600">
-            {submission.teacher_checked
-              ? "✅ Багш шалгасан"
-              : "⏳ Багш шалгах хүлээгдэж байна"}
+          <div className="pt-6 border-t border-gray-200">
+            <p className="text-sm text-gray-600">
+              {submission.teacher_checked
+                ? "✅ Багш шалгасан"
+                : "⏳ Багш шалгах хүлээгдэж байна"}
+            </p>
           </div>
         )}
       </div>
 
-      {/* DETAILS */}
+      {/* Details Card */}
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
           Дэлгэрэнгүй мэдээлэл
         </h2>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-gray-50 rounded-lg p-4">
             <p className="text-sm text-gray-600 mb-1">Эхлэсэн цаг</p>
-            <p className="font-medium">
+            <p className="font-medium text-gray-900">
               {submission.start_time
                 ? new Date(submission.start_time).toLocaleString("mn-MN")
                 : "-"}
             </p>
           </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-gray-50 rounded-lg p-4">
             <p className="text-sm text-gray-600 mb-1">Илгээсэн цаг</p>
-            <p className="font-medium">
+            <p className="font-medium text-gray-900">
               {submission.submit_time
                 ? new Date(submission.submit_time).toLocaleString("mn-MN")
                 : "-"}
             </p>
-
             {submission.completion_time_minutes && (
               <p className="text-xs text-gray-500 mt-1">
-                Дуусгасан: {submission.completion_time_minutes} мин
+                Дуусгасан: {submission.completion_time_minutes} минут
               </p>
             )}
           </div>
-
           {submission.attempt_number && (
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="bg-gray-50 rounded-lg p-4">
               <p className="text-sm text-gray-600 mb-1">Оролдлого</p>
-              <p className="font-medium">{submission.attempt_number}-р</p>
+              <p className="font-medium text-gray-900">
+                {submission.attempt_number}-р оролдлого
+              </p>
             </div>
           )}
-
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-gray-50 rounded-lg p-4">
             <p className="text-sm text-gray-600 mb-1">Төлөв</p>
-            <p className="font-medium">
+            <p className="font-medium text-gray-900">
               {submission.status === "submitted"
                 ? "Илгээсэн"
                 : submission.status === "in_progress"
@@ -307,10 +294,20 @@ const ExamResult = () => {
                 : "Эхэлсэн"}
             </p>
           </div>
+          {submission.checked_by && (
+            <div className="bg-gray-50 rounded-lg p-4">
+              <p className="text-sm text-gray-600 mb-1">Шалгасан</p>
+              <p className="font-medium text-gray-900">
+                {submission.checked_at
+                  ? new Date(submission.checked_at).toLocaleDateString("mn-MN")
+                  : "-"}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ACTION BUTTONS */}
+      {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         {exam.show_correct_answer && (
           <Link
@@ -318,10 +315,9 @@ const ExamResult = () => {
             className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 font-semibold shadow-md hover:shadow-lg transition-all transform hover:scale-105"
           >
             <Eye size={20} />
-            Зөв хариулт харах
+            Зөв хариултууд харах
           </Link>
         )}
-
         <Link
           to={`/team6/exams/${exam_id}/students/${student_id}`}
           className="flex items-center justify-center gap-2 bg-gray-600 text-white px-8 py-3 rounded-lg hover:bg-gray-700 font-semibold shadow-md hover:shadow-lg transition-all transform hover:scale-105"

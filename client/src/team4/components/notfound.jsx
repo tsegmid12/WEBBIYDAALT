@@ -1,4 +1,4 @@
-// src/pages/NotFound.jsx
+
 const NotFound = () => {
   return (
     <div className='min-h-screen flex flex-col items-center justify-center bg-gray-50'>

@@ -11,7 +11,6 @@ export default function CourseDetail() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('lessons');
 
-  // Keep backward compatibility: components under courseDetail read id from query params
   useEffect(() => {
     const existing = searchParams.get('id');
     if (!existing && id) {

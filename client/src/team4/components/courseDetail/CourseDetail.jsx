@@ -8,114 +8,127 @@ import {
   File,
 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import { courseAPI, progressAPI } from '../../services/api';
+import { courseAPI, progressAPI } from '../../services/usedAPI';
 
 export default function LessonsTab() {
   const [searchParams] = useSearchParams();
   const courseId = searchParams.get('id');
+
   const [openWeek, setOpenWeek] = useState(null);
   const [weeks, setWeeks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [completedLessons, setCompletedLessons] = useState(new Set());
+  const [error, setError] = useState(null);
+  // Modal state for lesson details
+  const [selectedLesson, setSelectedLesson] = useState(null);
+
   useEffect(() => {
     if (courseId) {
       fetchCourseDetails();
       fetchLessonProgress();
     }
   }, [courseId]);
+
+  /** 🔎 type_id → lesson type */
+  const determineLessonType = typeId => {
+    switch (typeId) {
+      case 10:
+        return 'video';
+      case 20:
+        return 'file';
+      case 30:
+        return 'assignment';
+      case 40:
+        return 'exam';
+      default:
+        return 'other';
+    }
+  };
+
+  /** 🔎 Backend → weeks[] формат руу хөрвүүлэх */
   const fetchCourseDetails = async () => {
     try {
       setLoading(true);
-      const data = await courseAPI.getCourseDetails(courseId);
-      const weeksData = data.weeks || data.modules || [];
-      setWeeks(weeksData.length > 0 ? weeksData : getDemoWeeks());
+
+      const data = await courseAPI.getCourseLessons(courseId);
+      const items = data.items || [];
+
+      // Parent (module) — parent_id = null
+      const modules = items.filter(i => i.parent_id === null);
+
+      const formatted = modules.map(module => {
+        // Children lessons
+        const children = items.filter(i => i.parent_id === module.id);
+
+        return {
+          id: module.id,
+          title: module.name,
+          lessons:
+            children.length > 0
+              ? children.map(ch => ({
+                  id: ch.id,
+                  title: ch.name,
+                  type: determineLessonType(ch.type_id),
+                  duration: ch.duration || null,
+                  content: ch.content || null,
+                }))
+              : [
+                  {
+                    id: module.id,
+                    title: module.name,
+                    type: determineLessonType(module.type_id),
+                    duration: module.duration || null,
+                    content: module.content || null,
+                  },
+                ],
+        };
+      });
+
+      setWeeks(formatted);
     } catch (err) {
-      console.error('Error fetching course details:', err);
+      console.error('Fetch error:', err);
       setError(err.message);
-      setWeeks(getDemoWeeks());
     } finally {
       setLoading(false);
     }
   };
 
+  /** ✔ Progress */
   const fetchLessonProgress = async () => {
     try {
       const data = await progressAPI.getLessonCompletion(courseId);
-      const completed = new Set(data.completedLessons || []);
-      setCompletedLessons(completed);
+      setCompletedLessons(new Set(data.completedLessons || []));
     } catch (err) {
-      console.error('Error fetching lesson progress:', err);
+      console.error('Progress error:', err);
     }
   };
 
-  const getDemoWeeks = () => [
-    {
-      id: 0,
-      title: 'Ерөнхий',
-      lessons: [
-        {
-          id: 'intro-1',
-          title: 'Хичээлийн танилцуулга',
-          type: 'video',
-          duration: '15 мин',
-        },
-        {
-          id: 'intro-2',
-          title: 'Хичээлийн хөтөлбөр',
-          type: 'file',
-        },
-      ],
-    },
-    {
-      id: 1,
-      title: 'Week 1',
-      lessons: [
-        {
-          id: 'w1-1',
-          title: 'Лабораторийн ажил 1',
-          type: 'video',
-          duration: '45 мин',
-        },
-        {
-          id: 'w1-2',
-          title: 'Гэрийн даалгавар',
-          type: 'assignment',
-        },
-        {
-          id: 'w1-2',
-          title: 'Явцын шалгалт',
-          type: 'exam',
-          duration: '30 мин',
-        },
-      ],
-    },
-    { id: 2, title: 'Week 2', lessons: [] },
-    { id: 3, title: 'Week 3', lessons: [] },
-    { id: 4, title: 'Week 4', lessons: [] },
-    { id: 5, title: 'Week 5', lessons: [] },
-    { id: 6, title: 'Week 6', lessons: [] },
-    { id: 7, title: 'Week 7', lessons: [] },
-    { id: 8, title: 'Week 8', lessons: [] },
-  ];
-
-  const handleLessonClick = async lessonId => {
+  /** ✔ Mark Complete */
+  const markLessonComplete = async lessonId => {
     try {
       await progressAPI.markLessonComplete(lessonId);
       setCompletedLessons(prev => new Set([...prev, lessonId]));
     } catch (err) {
-      console.error('Error marking lesson complete:', err);
+      console.error('Mark complete error:', err);
     }
   };
 
+  // Show lesson details in modal
+  const handleLessonClick = lesson => {
+    setSelectedLesson(lesson);
+  };
+
+  /** ✔ Icons */
   const getLessonIcon = type => {
     switch (type) {
       case 'video':
-        return <Video size={16} className='text-blue-500' />;
+        return <Video size={18} className='text-blue-500' />;
       case 'assignment':
-        return <FileText size={16} className='text-orange-500' />;
+        return <FileText size={18} className='text-orange-500' />;
       case 'file':
-        return <File size={16} className='text-gray-500' />;
+        return <File size={18} className='text-gray-500' />;
+      case 'exam':
+        return <FileText size={18} className='text-red-500' />;
       default:
         return <Circle size={16} className='text-gray-400' />;
     }
@@ -132,14 +145,6 @@ export default function LessonsTab() {
 
   return (
     <div className='max-w-2xl mx-auto space-y-3'>
-      {/* {error && (
-        <div className='bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6'>
-          <p className='text-yellow-700'>
-            Demo өгөгдөл харуулж байгаа.
-          </p>
-        </div>
-      )} */}
-
       {weeks.length === 0 ? (
         <div className='text-center py-12'>
           <p className='text-gray-500'>Хичээлийн агуулга олдсонгүй</p>
@@ -156,54 +161,75 @@ export default function LessonsTab() {
                 <span className='font-semibold text-gray-900'>
                   {week.title}
                 </span>
-                {week.lessons && week.lessons.length > 0 && (
+                {week.lessons.length > 0 && (
                   <span className='text-sm text-gray-500'>
                     ({week.lessons.length} хичээл)
                   </span>
                 )}
               </div>
               <ChevronDown
+                size={20}
                 className={`text-gray-400 transition-transform ${
                   openWeek === week.id ? 'rotate-180' : ''
                 }`}
-                size={20}
               />
             </button>
 
-            {openWeek === week.id &&
-              week.lessons &&
-              week.lessons.length > 0 && (
-                <div className='px-6 pb-4 border-t'>
-                  <div className='pt-4 space-y-2'>
-                    {week.lessons.map((lesson, idx) => (
-                      <button
-                        key={lesson.id || idx}
-                        onClick={() => handleLessonClick(lesson.id)}
-                        className='w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left'>
-                        <div className='flex-shrink-0'>
-                          {completedLessons.has(lesson.id) ? (
-                            <CheckCircle size={20} className='text-green-500' />
-                          ) : (
-                            getLessonIcon(lesson.type)
-                          )}
+            {openWeek === week.id && (
+              <div className='px-6 pb-4 border-t'>
+                <div className='pt-4 space-y-2'>
+                  {week.lessons.map((lesson, idx) => (
+                    <button
+                      key={lesson.id}
+                      onClick={() => handleLessonClick(lesson)}
+                      className='w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left'>
+                      <div className='flex-shrink-0'>
+                        {completedLessons.has(lesson.id) ? (
+                          <CheckCircle size={20} className='text-green-500' />
+                        ) : (
+                          getLessonIcon(lesson.type)
+                        )}
+                      </div>
+                      <div className='flex-1'>
+                        <div className='text-gray-800 text-sm font-medium'>
+                          {lesson.title || lesson.name || `Lesson ${idx + 1}`}
                         </div>
-                        <div className='flex-1'>
-                          <div className='text-gray-800 text-sm font-medium'>
-                            {lesson.title || lesson.name || `Lesson ${idx + 1}`}
+                        {lesson.duration && (
+                          <div className='text-gray-500 text-xs mt-0.5'>
+                            {lesson.duration}
                           </div>
-                          {lesson.duration && (
-                            <div className='text-gray-500 text-xs mt-0.5'>
-                              {lesson.duration}
-                            </div>
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+                        )}
+                      </div>
+                    </button>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
           </div>
         ))
+      )}
+
+      {/* Modal for lesson details */}
+      {selectedLesson && (
+        <div className='fixed inset-0 bg-black/40 flex items-center justify-center z-50'>
+          <div className='bg-white p-6 rounded-lg w-full max-w-2xl shadow-lg relative'>
+            <button
+              onClick={() => setSelectedLesson(null)}
+              className='absolute right-4 top-4 text-gray-500 hover:text-black'>
+              ✕
+            </button>
+
+            <h2 className='text-lg font-semibold mb-4'>
+              {selectedLesson.title}
+            </h2>
+
+            <div
+              className='prose max-w-full'
+              dangerouslySetInnerHTML={{
+                __html: selectedLesson.content,
+              }}></div>
+          </div>
+        </div>
       )}
     </div>
   );

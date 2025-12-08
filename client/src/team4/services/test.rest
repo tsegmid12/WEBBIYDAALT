@@ -1,0 +1,74 @@
+
+
+POST https://todu.mn/bs/lms/v1/token/email
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "schoolstudent@must.edu.mn",
+  "password": "123"
+}
+
+
+###
+POST https://todu.mn/bs/lms/v1/token/email
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "schoolteacher@must.edu.mn",
+  "password": "123"
+}
+
+
+
+
+###
+POST https://todu.mn/bs/lms/v1/token/email
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "admin@must.edu.mn",
+  "password": "123"
+}
+
+
+###
+POST https://todu.mn/bs/lms/v1/token/email
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "admin@must.edu.mn",
+  "password": "123"
+}
+
+###
+GET https://todu.mn/bs/lms/v1/schools/2/users
+Authorization: Bearer llOxeDF9Duon_c1eUyg6ZA
+Content-Type: application/json
+Accept: application/json
+
+
+
+
+GET https://todu.mn/bs/lms/v1/courses/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer -beByPYkdKpjCagi3otqnw
+
+
+
+###
+GET https://todu.mn/bs/lms/v1/categories/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer K4ChHGd3pcY0Af-1nNb4_w
+
+
+
+
+
+
+
